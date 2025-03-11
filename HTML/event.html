@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Events Platform</title>
+    <link rel="stylesheet" href="event.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Inter:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+
+
+    <div class="app-container">
+      <header class="navigation">
+        <div class="nav-content">
+          <div class="search-filter-container">
+            <div class="search-bar">
+              <i class="ti ti-search search-icon"></i>
+              <input type="text" placeholder="Search" class="search-input" />
+            </div>
+            <div class="filter-container" onclick="toggleFilter()">
+              <button class="filter-btn">
+                <i class="ti ti-adjustments"></i>
+              </button>
+              <div class="filter-menu">
+                <div class="filter-group">
+                  <label class="filter-label">Event Type</label>
+                  <div class="filter-option">
+                    <input type="checkbox" id="hackathon" checked />
+                    <label for="hackathon">Hackathon</label>
+                  </div>
+                  <div class="filter-option">
+                    <input type="checkbox" id="workshop" />
+                    <label for="workshop">Workshop</label>
+                  </div>
+                </div>
+                <div class="filter-group">
+                  <label class="filter-label">Date Range</label>
+                  <div class="filter-option">
+                    <input type="checkbox" id="upcoming" />
+                    <label for="upcoming">Upcoming</label>
+                  </div>
+                  <div class="filter-option">
+                    <input type="checkbox" id="ongoing" checked />
+                    <label for="ongoing">Ongoing</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <nav class="nav-links">
+            <a href="Home page.html" class="nav-link">Home</a>
+            <a href="event.html" class="nav-link">Events</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+
+          </nav>
+        </div>
+      </header>
+	  
+	  
+      
+      <main class="content-section">
+        <section class="content-background">
+          <div class="event-wrapper">
+            <div class="event-cards" >
+              
+<div class="event-card static" onclick="window.location.href='Event_Details.html';" style="cursor: pointer;">
+    <img src="images/AI.jpg" alt="Event Image" class="event-image">
+    <h3 class="event-title">AI</h3>
+    <p><strong>Type:</strong> Hackathon</p>
+    <p><strong>Start Date:</strong> 2025-03-15 <strong>at 00:32</strong></p>
+    <p><strong>Location:</strong> Riyadh</p>
+    <p><strong>Registration Deadline:</strong> 2025-03-20</p>
+    
+   <a href="Team_Form.html">
+    <button class="register-btn">Register</button>
+</a>
+
+
+
+			  
+            </div>
+          </div>
+        </section>
+      </main>
+
+
+
+
+      <footer class="footer">Copyright © 2024 Ruaa. All Rights Reserved.</footer>
+    </div>
+    
+    <script>
+      function toggleFilter() {
+        document.querySelector(".filter-container").classList.toggle("active");
+      }
+    </script>
+	<script src="event.js"></script>
+
+  </body>
+</html>
+
