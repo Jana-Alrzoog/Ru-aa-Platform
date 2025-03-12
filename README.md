@@ -14,4 +14,14 @@ Ru'aa is a web-based platform designed to connect individuals interested in tech
 ## Technologies Used  
 - **Frontend:** HTML, CSS, JavaScript  
 - **Backend:** LocalStorage (for data persistence)  
-- **Tools:** Git, GitHub, VS Code, figma
+- **Tools:** GitHub, VS Code, figma
+
+## Project Goals  
+
+Ru'aa was built to solve key challenges faced by tech enthusiasts and event organizers:  
+
+- **Centralized Event Discovery** – Make it easier for students to find relevant **hackathons, workshops, and competitions** in one place.  
+- **Simplify Event Management** – Provide **event organizers** with a **user-friendly** way to create, manage, and promote their events.  
+- **Encourage Team Collaboration** – Help participants **find teammates** for group-based events through team formation tools.  
+- **Keep Users Engaged** – Ensure users **never miss deadlines** by offering notifications and reminders.  
+- **Support the Tech Community** – Foster a **culture of innovation** by making tech events more accessible.  
