@@ -9,5 +9,4 @@ This project was developed by the following contributors:
 - **Nora Albyahi** - 443200479
 - **Layan Aldbays** - 444200653 
 
-## Special Thanks:
 A big thank you to all contributors who helped improve this project ❤️!  
