@@ -14,5 +14,4 @@ Ru'aa is a web-based platform designed to connect individuals interested in tech
 ## Technologies Used  
 - **Frontend:** HTML, CSS, JavaScript  
 - **Backend:** LocalStorage (for data persistence)  
-- **Frameworks & Libraries:**  
 - **Tools:** Git, GitHub, VS Code, figma
