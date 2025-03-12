@@ -2,11 +2,12 @@
 
 This project was developed by the following contributors:
 
-## Development Team
-- **[Your Name]** - Lead Developer 
-- **[Teammate Name]** - Frontend Developer 
-- **[Teammate Name]** - Backend Developer  
+## Development Team:
+- **Jana Alruzuq** - 444201157
+- **Nouf Alaskar** - 443200456
+- **Lana Albogami** - 444201031
+- **Nora Albyahi** - 443200479
+- **Layan Aldbays** - 444200653 
 
-
-## 📢 Special Thanks
+## Special Thanks:
 A big thank you to all contributors who helped improve this project ❤️!  
