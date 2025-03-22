@@ -124,12 +124,13 @@ body{
     transform: translateX(100%);
 }
 
-.sign-up{
+.sign-up {
     left: 0;
     width: 50%;
-    opacity: 0;
-    z-index: 1;
+    opacity: 1;
+    z-index: 2;
 }
+
 
 .container.active .sign-up{
     transform: translateX(100%);
@@ -249,4 +250,63 @@ body{
 
 .container select:focus {
     border: 2px solid #6c2bbf;
+}
+/* ===================================
+   ADDITIONAL CSS FOR STATIC SIDE PANEL
+   =================================== */
+
+/* Main container that holds the left (purple) panel and right (white) form */
+.signup-container {
+  position: relative;
+  display: flex;
+  width: 768px;
+  max-width: 100%;
+  min-height: 480px;
+  background-color: #fff;
+  border-radius: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+/* Purple side panel */
+.signup-left {
+  background-color: #8940d3;
+  color: #fff;
+  width: 40%;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* White area for the sign-up form */
+.signup-right {
+  width: 60%;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #fff;
+}
+
+/* Make the form take full width in the right panel */
+.signup-right form {
+  width: 100%;
+}
+
+/* Override old toggle styles so the sign-up form is always visible */
+.form-container.sign-up {
+  position: static;  /* remove absolute positioning */
+  width: 100%;
+  opacity: 1;        /* fully visible */
+  z-index: 2;        /* ensure it's on top */
+  animation: none;   /* disable toggle animation */
+  transform: none;   /* disable toggle transform */
+}
+.error-message {
+color:#fff !important; /* White text */
+  font-weight: 500; /* Optional for a slightly bolder look */
+  margin-top: 10px; /* Optional spacing */
 }
