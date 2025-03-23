@@ -1,112 +1,93 @@
-<?php
-session_start();
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// ====== Database Connection (Inline) ======
-// Update these values according to your environment
-$host = 'localhost';
-$db   = 'ruaa_db';          // Your Ruaa database name
-$user = 'root';             // Database username
-$pass = 'root';             // Database password (update if needed)
-// If you're using MAMP with port 8889, include it as the 5th parameter.
-$conn = new mysqli($host, $user, $pass, $db, 8889);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// ====== Handle Log-In Form Submission ======
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = trim($_POST["email"]);
-    $password = $_POST["password"];
-
-    // 1. Check required fields
-    if (empty($email) || empty($password)) {
-        header("Location: login.php?error=All fields are required!");
-        exit();
-    }
-
-    // 2. Fetch user from the database
-    $stmt = $conn->prepare("SELECT Name, Email, Password, Role FROM user WHERE Email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $stmt->store_result();
-
-    // 3. If exactly one user is found
-    if ($stmt->num_rows == 1) {
-        $stmt->bind_result($name, $db_email, $db_password, $role);
-        $stmt->fetch();
-
-        // 4. Verify the password
-        if (password_verify($password, $db_password)) {
-            // Store session variables
-            $_SESSION["user"] = $name;
-            $_SESSION["email"] = $email;
-            $_SESSION["role"] = $role;
-
-            // 5. Redirect based on the user role
-            if ($role == "organizer") {
-                header("Location: organizer_page.html");
-            } else {
-                header("Location: Home_page.php");
-            }
-            exit();
-        } else {
-            header("Location: login.php?error=Incorrect password!");
-            exit();
-        }
-    } else {
-        header("Location: login.php?error=Email not found!");
-        exit();
-    }
-
-    $stmt->close();
-    $conn->close();
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Ruaa | Log In</title>
-    <!-- Link to the existing CSS file -->
-    <link rel="stylesheet" href="Register_style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.min.css">
+    <link rel="stylesheet" href="Home_page_style.css">
+    <title>Ruaa</title>
 </head>
 <body>
-    <!-- Background blur elements -->
-    <span class="blur"></span>
-    <span class="blur"></span>
 
-    <!-- Main container with 'active' to keep sign-in visible -->
-    <div class="container active" id="container">
-        <!-- Left Panel (Purple) -->
-        <div class="toggle-container">
-            <div class="toggle">
-                <div class="toggle-panel toggle-left">
-                    <h1>Welcome Back!</h1>
-                    <p>Log in to access your account and continue your journey with Ruaa.</p>
-                </div>
+    <nav>
+        <div class="nav-logo">
+            <a href="#">
+                <img src="images/logo_ruaa.png" alt="Ruaa Logo">
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li class="link"><a href="Home_page.html">Home</a></li>
+            <li class="link"><a href="event.html">Events</a></li>
+            <li class="link"><a href="notification.html">🔔</a></li>
+        </ul>
+    </nav>
+
+<header class="container">
+    <div class="content">
+        <span class="blur"></span>
+        <span class="blur"></span>
+        <h4>JOIN EXCITING EVENTS & WORKSHOPS</h4>
+        <h1>Welcome to <span>Ruaa</span>, Your Gateway to Learning & Innovation</h1>
+        <p>
+            Explore the best hackathons and workshops. Learn, compete, and grow with a vibrant community!
+        </p>
+        
+        <button class="btn" onclick="window.location.href='login.php';">Log In</button>
+<p style="margin-top: 10px;">
+    Don't have an account?
+    <a href="signup.php" style="color: #6a0dad; text-decoration: none; font-weight: bold;">
+        Sign Up
+    </a>
+</p>
+
+
+    </div>
+
+    <div class="image">
+        <img src="images/header.png" alt="Events Image">
+    </div>
+</header>
+
+
+    <br><br>
+
+    <footer class="container">
+        <span class="blur"></span>
+        <span class="blur"></span>
+        <div class="column">
+            <div class="logo">
+                <img src="images/logo_ruaa.png" alt="Ruaa Logo">
+            </div>
+            <p>
+                Connecting innovators, fostering collaboration, and hosting top-tier hackathons & workshops worldwide.
+            </p>
+            <div class="socials">
+                <a href="#"><i class="ri-linkedin-box-line"></i></a>
+                <a href="#"><i class="ri-twitter-line"></i></a>
+                <a href="#"><i class="ri-discord-line"></i></a>
             </div>
         </div>
-
-        <!-- Right Panel: Sign-In Form -->
-        <div class="form-container sign-in">
-            <form action="login.php" method="POST">
-                <h1>Log In</h1>
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <button type="submit" name="login">Log In</button>
-
-                <!-- Display error message (in white, as styled in Register_style.css) -->
-                <?php
-                if (isset($_GET['error'])) {
-                    echo '<p class="error-message">' . htmlspecialchars($_GET['error']) . '</p>';
-                }
-                ?>
-            </form>
+        <div class="column">
+            <h4>Explore</h4>
+            <a href="#">Events</a>
+            <a href="#">Workshops</a>
+            <a href="#">Hackathons</a>
         </div>
+        <div class="column">
+            <h4>About</h4>
+            <a href="#">Mission</a>
+            <a href="#">Contact</a>
+        </div>
+        <div class="column">
+            <h4>Legal</h4>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+    </footer>
+
+    <div class="copyright">
+        Copyright © 2024 Ruaa. All Rights Reserved.
     </div>
+
 </body>
 </html>
-
