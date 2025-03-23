@@ -4,11 +4,12 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // ====== Database Connection (MySQLi) ======
+// Update these values according to your environment
 $host = 'localhost';
-$db   = 'ruaa_db';
-$user = 'root';
-$pass = 'root';
-// If you're using MAMP with port 8889, adjust accordingly
+$db   = 'ruaa_db';    // Your database name
+$user = 'root';       // Your database username
+$pass = 'root';       // Your database password (if any)
+// If you're using MAMP with port 8889, pass it as the 5th parameter:
 $conn = new mysqli($host, $user, $pass, $db, 8889);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -16,61 +17,63 @@ if ($conn->connect_error) {
 
 // ====== Handle Sign-Up Form Submission ======
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // 1. Collect form data
     $name             = trim($_POST["name"]);
     $email            = trim($_POST["email"]);
     $password         = $_POST["password"];
     $confirm_password = $_POST["confirm_password"];
     $role             = $_POST["role"];  // 'participant' or 'organizer'
 
-    // 1. Validate required fields
+    // 2. Validate required fields
     if (empty($name) || empty($email) || empty($password) || empty($confirm_password) || empty($role)) {
-        header("Location: signup.php?error=All fields are required!");
+        // Pass the error message as a GET parameter
+        header("Location: signup.php?error=All+fields+are+required!");
         exit();
     }
 
-    // 2. Validate email format
+    // 3. Validate email format
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        header("Location: signup.php?error=Invalid email format!");
+        header("Location: signup.php?error=Invalid+email+format!");
         exit();
     }
 
-    // 3. Validate password length (minimum 8 chars)
+    // 4. Validate password length (minimum 8 characters)
     if (strlen($password) < 8) {
-        header("Location: signup.php?error=Password must be at least 8 characters!");
+        header("Location: signup.php?error=Password+must+be+at+least+8+characters!");
         exit();
     }
 
-    // 4. Check if passwords match
+    // 5. Check if passwords match
     if ($password !== $confirm_password) {
-        header("Location: signup.php?error=Passwords do not match!");
+        header("Location: signup.php?error=Passwords+do+not+match!");
         exit();
     }
 
-    // 5. Check if the email is already registered
+    // 6. Check if the email is already registered
     $stmt = $conn->prepare("SELECT Email FROM User WHERE Email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
     if ($stmt->num_rows > 0) {
-header("Location: signup.php?error=Email+already+registered!");
+        // If email exists, redirect with an error
+        header("Location: signup.php?error=Email+already+registered!");
         exit();
     }
     $stmt->close();
 
-    // 6. Hash the password
+    // 7. Hash the password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // 7. Insert the new user
+    // 8. Insert the new user
     $stmt = $conn->prepare("INSERT INTO User (Name, Email, Password, Role) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("ssss", $name, $email, $hashed_password, $role);
 
     if ($stmt->execute()) {
-        // Role-based redirect after successful sign-up
+        // On success, redirect based on role
         if ($role === 'organizer') {
-            header("Location: organizer_page.html?success=Account created successfully!");
+            header("Location: organizer_page.html?success=Account+created+successfully!");
         } else {
-            // Default to participant
-            header("Location: Home_page.php?success=Account created successfully!");
+            header("Location: Home_page.php?success=Account+created+successfully!");
         }
         exit();
     } else {
@@ -81,75 +84,70 @@ header("Location: signup.php?error=Email+already+registered!");
     $stmt->close();
     $conn->close();
 }
-
-
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ruaa | Sign Up</title>
   <!-- Link to your external CSS file -->
   <link rel="stylesheet" href="Register_style.css">
-  <title>Ruaa | Sign Up</title>
 </head>
 <body>
+  <!-- Optional blurred background elements -->
   <span class="blur"></span>
   <span class="blur"></span>
-<div class="container active" id="container">
-  <!-- Left Panel: Welcome Message (using toggle-container and toggle-panel classes) -->
-  <div class="toggle-container">
-    <div class="toggle">
-      <div class="toggle-panel toggle-left">
-        <h1>Welcome to Ruaa!</h1>
-        <p>Join our community of innovators and start your journey with us.</p>
-      </div>
-    </div>
-  </div>
 
-  <!-- Right Panel: Sign-Up Form -->
-  <div class="form-container sign-up">
-    <form action="signup.php" method="post">
-      <h1>Create Account</h1>
-      <input type="text" name="name" placeholder="Name" required>
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="password" name="password" placeholder="Password" required>
-      <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-      
-      <!-- Role Selection Dropdown with id for JS validation -->
-      <select name="role" required id="role">
-        <option value="">Select Role</option>
-        <option value="participant">Participant</option>
-        <option value="organizer">Organizer</option>
-      </select>
-      
-      <button type="submit" name="signup">Sign Up</button>
-        <!-- Display Sign-Up Messages -->
+  <!-- Main container (no toggle/animation) -->
+  <div class="signup-container">
+    
+    <!-- Left panel: purple background with welcome text -->
+    <div class="signup-left">
+        
+      <h1>Welcome to Ruaa!</h1>
+      <p>Join our community of innovators and start your journey with us.</p>
+    </div>
+    
+    <!-- Right panel: white background with the sign-up form -->
+    <div class="signup-right">
+      <form action="signup.php" method="POST">
+        <h1>Create Account</h1>
+        
+        <!-- Form fields -->
+        <input type="text" name="name" placeholder="Name" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+
+        <select name="role" required id="role">
+          <option value="">Select Role</option>
+          <option value="participant">Participant</option>
+          <option value="organizer">Organizer</option>
+        </select>
+
+        <button type="submit" name="signup">Sign Up</button>
+        
+        <!-- Display error or success messages -->
         <?php
           if (isset($_GET['error'])) {
-              echo "<p class='error-message'>" . htmlspecialchars($_GET['error']) . "</p>";
+              // .error-message class in CSS will make text white
+              echo '<p class="error-message">' . htmlspecialchars($_GET['error']) . '</p>';
           }
           if (isset($_GET['success'])) {
-              echo "<p class='success-message'>" . htmlspecialchars($_GET['success']) . "</p>";
+              // .success-message class in CSS can make text green
+              echo '<p class="success-message">' . htmlspecialchars($_GET['success']) . '</p>';
           }
         ?>
-    </form>
-  
-  </div>
-</div>
-
-
       </form>
-
     </div>
   </div>
-  <!-- JavaScript to validate that a role is selected before form submission -->
+
+  <!-- Simple JS to ensure user selects a role -->
   <script>
-    document.addEventListener("DOMContentLoaded", function(){
-      const signUpForm = document.querySelector("form");
-      signUpForm.addEventListener("submit", function(event){
+    document.addEventListener("DOMContentLoaded", function() {
+      const signUpForm = document.querySelector(".signup-right form");
+      signUpForm.addEventListener("submit", function(event) {
         const roleSelect = document.getElementById("role");
         if (!roleSelect.value) {
           alert("Please select a role before signing up!");

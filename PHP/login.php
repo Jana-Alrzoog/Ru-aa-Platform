@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <title>Ruaa | Log In</title>
     <!-- Link to the existing CSS file -->
-    <link rel="stylesheet" href="Register_style.css">
+    <link rel="stylesheet" href="Log-in.css">
 </head>
 <body>
     <!-- Background blur elements -->
@@ -84,6 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="toggle-container">
             <div class="toggle">
                 <div class="toggle-panel toggle-left">
+                    <br><br><br><br><br><br><br><br>
                     <h1>Welcome Back!</h1>
                     <p>Log in to access your account and continue your journey with Ruaa.</p>
                 </div>
