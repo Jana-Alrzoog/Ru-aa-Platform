@@ -39,14 +39,33 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // حذف حدث من القائمة
-    document.addEventListener("click", function (e) {
-        if (e.target.classList.contains("remove-event-btn")) {
-            if (confirm("Are you sure you want to remove this event?")) {
-                e.target.closest(".event-item").remove();
-                updateEventsVisibility();
-            }
+   document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("remove-event-btn")) {
+        const eventItem = e.target.closest(".event-item");
+        const title = eventItem.querySelector(".event-name").textContent;
+
+        if (confirm("Are you sure you want to remove this event?")) {
+            // Send fetch request to remove_event.php
+            fetch("remove_event.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: "title=" + encodeURIComponent(title),
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    eventItem.remove();
+                    updateEventsVisibility();
+                } else {
+                    alert("Failed to remove event: " + data.error);
+                }
+            });
         }
-    });
+    }
+});
+
 
     // تحديث ظهور قائمة الأحداث
     function updateEventsVisibility() {
