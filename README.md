@@ -1,7 +1,6 @@
 # Ru'aa Platform
-![image](https://github.com/user-attachments/assets/82bcbbf2-8ccc-4a44-9eaa-504c5032fdd9)
+![image](https://github.com/user-attachments/assets/6997569a-72e1-4dd4-8ce4-3b17fec4ead6)
 
-![image](https://github.com/user-attachments/assets/e5384bb7-e1c3-43bd-a37c-e0a231c8c713)
 
 
 ## Project Description  
@@ -27,5 +26,8 @@ Ru'aa was built to solve key challenges faced by tech enthusiasts and event orga
 
 ## Technologies Used  
 - **Frontend:** HTML, CSS, JavaScript  
-- **Backend:** LocalStorage (for data persistence)  
+- **Backend:** LocalStorage (for data persistence) ,PHP
 - **Tools:** GitHub, VS Code, figma
+
+  ![image](https://github.com/user-attachments/assets/e5384bb7-e1c3-43bd-a37c-e0a231c8c713)
+
