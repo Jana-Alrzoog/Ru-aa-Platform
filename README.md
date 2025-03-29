@@ -1,6 +1,7 @@
-# Ru'aa Platform ![image](https://github.com/user-attachments/assets/82bcbbf2-8ccc-4a44-9eaa-504c5032fdd9)
+# Ru'aa Platform
+![image](https://github.com/user-attachments/assets/82bcbbf2-8ccc-4a44-9eaa-504c5032fdd9)
 
-![image](https://github.com/user-attachments/assets/8c4913db-e5ef-40a4-90f8-5d34feb8d44b)
+![image](https://github.com/user-attachments/assets/e5384bb7-e1c3-43bd-a37c-e0a231c8c713)
 
 
 ## Project Description  
