@@ -210,14 +210,14 @@ footer {
   background-color: transparent;
 }
 
-footer .container {
+.footer .container {
   display: grid;
   grid-template-columns: 400px repeat(3, 1fr);
   gap: 2rem;
   padding: 4rem 2rem;
 }
 
-footer .logo {
+.footer .logo {
   max-width: 100px;
   margin-bottom: 2rem;
 }
@@ -292,4 +292,3 @@ footer .column > a:hover {
   box-shadow: 0 0 1000px 50px #8940d3;
   z-index: -100;
 }
-
