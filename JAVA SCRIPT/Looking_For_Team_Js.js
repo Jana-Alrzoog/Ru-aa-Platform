@@ -1,66 +1,36 @@
-
 document.addEventListener("DOMContentLoaded", function () {
     const participantsContainer = document.getElementById("participants-container");
-    const sendRequestBtn = document.getElementById("send-request-btn");
 
-    let selectedParticipants = new Set();
-
-    
-    let participants = [
-        {id: 1, name: "Sarah Ahmed", email: "sarah@example.com"},
-        {id: 2, name: "Mohammed Ali", email: "mohammed@example.com"},
-        {id: 3, name: "Fatima Hassan", email: "fatima@example.com"},
-        {id: 4, name: "Omar Khalid", email: "omar@example.com"},
-    ];
-
-    function renderParticipants() {
-        participantsContainer.innerHTML = "";
-        participants.forEach(participant => {
-            const card = document.createElement("div");
-            card.className = "participant-card";
-            card.dataset.id = participant.id;
-
-            card.innerHTML = `
-                    <p class="participant-name">${participant.name} (${participant.email})</p>
-                `;
-
-            card.addEventListener("click", () => toggleSelection(participant.id));
-            participantsContainer.appendChild(card);
-        });
-    }
-
-    function toggleSelection(participantId) {
-        if (selectedParticipants.has(participantId)) {
-            selectedParticipants.delete(participantId);
-        } else {
-            selectedParticipants.add(participantId);
+    // إضافة Event Listener لجميع الأزرار
+    participantsContainer.addEventListener("click", function (e) {
+        if (e.target.classList.contains("save-email-btn")) {
+            const email = e.target.getAttribute("data-email");
+            saveEmail(email);
         }
+    });
+
+    // دالة لحفظ الإيميل في قاعدة البيانات
+    function saveEmail(email) {
+        fetch("API.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                action: "save_email",
+                email: email,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                alert(data.message); // عرض رسالة التأكيد
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
     }
-
-    function sendRequests() {
-        if (selectedParticipants.size === 0) {
-            alert("Please select at least one participant");
-            return;
-        }
-
-        let teamRequests = JSON.parse(localStorage.getItem("teamRequests")) || [];
-        let newRequests = participants.filter(p => selectedParticipants.has(p.id));
-
-        newRequests.forEach(request => {
-            if (!teamRequests.some(existing => existing.email === request.email)) {
-                teamRequests.push({id: request.id, name: request.name, email: request.email, status: "pending"});
-            }
-        });
-
-        localStorage.setItem("teamRequests", JSON.stringify(teamRequests));
-        alert(`Request sent to: ${newRequests.map(p => p.name).join(", ")}`);
-
-        selectedParticipants.clear();
-    }
-
-    sendRequestBtn.addEventListener("click", sendRequests);
-    renderParticipants();
 });
+
 
 const leaveTeamBtn = document.getElementById("leave-team-btn");
 
@@ -159,10 +129,16 @@ document.addEventListener("DOMContentLoaded", function () {
             participantsContainer.style.overflowY = "hidden";
         }
     }
-    function removeCurrentUser() {
-        state.participants = state.participants.filter((p) => p.id !== currentUserId);
-        updateUI();
-    }
+ function removeCurrentUser() {
+    state.participants = state.participants.filter((p) => p.id !== currentUserId);
+    updateUI();
+    
+    // إعادة التوجيه بعد الحذف
+    setTimeout(() => {
+        window.history.back(); // يعيد المستخدم إلى الصفحة السابقة
+    }, 500); // بعد نصف ثانية لإعطاء وقت للحذف
+}
+
 
 
     // Toggle participant selection
@@ -250,3 +226,73 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initial render
     renderParticipants();
 });
+
+
+// ✅ إرسال الإيميل عند الضغط على Be One Of Them
+document.getElementById("beOneOfThemBtn").addEventListener("click", function () {
+    const email = document.getElementById("userEmail").value; // استخدم الإيميل من الفورم
+    const eventTitle = "AI Hackathon"; // اسم الحدث الافتراضي
+
+    if (email) {
+        fetch("API.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                action: "add_participant",
+                email: email,
+                event_title: eventTitle,
+            }),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            alert(data.message);
+            location.reload(); // إعادة تحميل الصفحة بعد الإضافة
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
+    } else {
+        alert("Please enter a valid email.");
+    }
+});
+
+// ✅ إرسال الدعوات عند الضغط على Send Request
+document.getElementById("sendRequestBtn").addEventListener("click", function () {
+    const selectedEmails = getSelectedEmails(); // جلب الإيميلات المحددة
+    const teamName = document.getElementById("teamName").value;
+
+    if (selectedEmails.length > 0 && teamName) {
+        fetch("API.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                action: "send_request",
+                emails: selectedEmails,
+                team_name: teamName,
+            }),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            alert(data.message);
+            location.reload(); // إعادة تحميل الصفحة بعد الإرسال
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
+    } else {
+        alert("Please select members and enter a team name.");
+    }
+});
+
+// ✅ جلب الإيميلات المحددة من القائمة
+function getSelectedEmails() {
+    const selected = [];
+    document.querySelectorAll('input[name="participant"]:checked').forEach((checkbox) => {
+        selected.push(checkbox.value);
+    });
+    return selected;
+}
