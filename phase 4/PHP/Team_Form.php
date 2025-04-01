@@ -116,12 +116,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_team'])) {
         $insert_team_stmt->bind_param("ssiss", $team_name, $team_idea, $max_members, $event_title, $leader_email);
 
         if ($insert_team_stmt->execute()) {
-            // ✅ إدخال الدعوات المرسلة
+            // ✅ إدخال القائد في جدول registration
+            $insert_registration_query = "INSERT INTO registration (Team_Name, Idea, Name, Email) VALUES (?, ?, ?, ?)";
+            $stmt_registration = $conn->prepare($insert_registration_query);
+            $stmt_registration->bind_param("ssss", $team_name, $team_idea, $_SESSION['user'], $_SESSION['email']);
+            $stmt_registration->execute();
+
+            // ✅ إدخال الدعوات المرسلة في جدول team_member و registration
             foreach ($_SESSION['invited_emails'] as $invite_email) {
+                // ✅ إدخال في جدول team_member
                 $insert_invite_query = "INSERT INTO team_member (Team_Name, Member_Email, Status) VALUES (?, ?, 'Pending')";
                 $invite_stmt = $conn->prepare($insert_invite_query);
                 $invite_stmt->bind_param("ss", $team_name, $invite_email);
                 $invite_stmt->execute();
+
+                // ✅ جلب اسم العضو من جدول User
+                $get_user_query = "SELECT Name FROM User WHERE Email = ?";
+                $stmt_get_user = $conn->prepare($get_user_query);
+                $stmt_get_user->bind_param("s", $invite_email);
+                $stmt_get_user->execute();
+                $user_result = $stmt_get_user->get_result();
+
+                if ($user_result->num_rows > 0) {
+                    $user_data = $user_result->fetch_assoc();
+                    $member_name = $user_data['Name'];
+
+                    // ✅ إدخال العضو في جدول registration
+                    $stmt_registration->bind_param("ssss", $team_name, $team_idea, $member_name, $invite_email);
+                    $stmt_registration->execute();
+                }
             }
 
             // ✅ تفريغ المصفوفة بعد إرسال الدعوات
@@ -137,6 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_team'])) {
     }
 }
 ?>
+
 
 <!doctype html>
 <html lang="en">
