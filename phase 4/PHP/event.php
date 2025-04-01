@@ -35,7 +35,7 @@ $result = mysqli_query($conn, $query);
           <i class="ti ti-search search-icon"></i>
           <input type="text" placeholder="Search" class="search-input" />
         </div>
-        <div class="filter-container" onclick="toggleFilter()">
+         <div class="filter-container" onclick="toggleFilter()">
           <button class="filter-btn">
             <i class="ti ti-adjustments"></i>
           </button>
@@ -68,7 +68,7 @@ $result = mysqli_query($conn, $query);
       <nav class="nav-links">
         <a href="Home_page.php" class="nav-link">Home</a>
         <a href="event.php" class="nav-link">Events</a>
-        <a href="profile.html" class="nav-link">Profile</a>
+        <a href="profile.php" class="nav-link">Profile</a>
         <a href="logout.php" class="nav-link">Log out</a>
       </nav>
     </div>
@@ -93,7 +93,8 @@ $result = mysqli_query($conn, $query);
     <p><strong>Start Date:</strong> <?= htmlspecialchars($row['Date']) ?></p>
     <p><strong>Location:</strong> <?= htmlspecialchars($row['Location']) ?></p>
     <p><strong>Registration Deadline:</strong> <?= htmlspecialchars($row['Registration_Deadline']) ?></p>
-    <button class="register-btn" onclick="event.stopPropagation(); window.location.href='Team_Form.html';">Register</button>
+<button class="register-btn" onclick="event.stopPropagation(); window.location.href='Team_Form.php?event_title=<?= urlencode($row['Title']) ?>';">Register</button>
+
   </div>
 <?php endwhile; ?>
 
