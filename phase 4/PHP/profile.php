@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Redirect to login if session is not set
 if (!isset($_SESSION['user']) || !isset($_SESSION['email'])) {
     header("Location: login.php");
     exit();
@@ -9,8 +8,6 @@ if (!isset($_SESSION['user']) || !isset($_SESSION['email'])) {
 
 $username = $_SESSION['user'];
 $email = $_SESSION['email'];
-
-
 ?>
 
 <!DOCTYPE html>
@@ -36,7 +33,6 @@ $email = $_SESSION['email'];
                 <li class="link"><a href="profile.php">Profile</a></li>
                 <li class="link"><a href="logout.php">Log out</a></li>
                 <li class="link"><a href="notification.php">🔔</a></li>
-    
             </ul>
         </nav>
 
@@ -49,7 +45,6 @@ $email = $_SESSION['email'];
                 <div class="input-group">
                     <label class="label">Email:</label>
                     <p id="email-display" class="input-field"><?php echo htmlspecialchars($email); ?></p>
-
                 </div>
                 <div class="input-group">
                     <label class="label">Experiences:</label>
@@ -72,53 +67,43 @@ $email = $_SESSION['email'];
 
         <section class="registered-events" id="registeredEvents">
             <h2 class="events-title">My Registered Events</h2>
-<ul class="events-list" id="eventsList">
-<?php
-include 'connection.php'; // ✅ your connection file
+            <ul class="events-list" id="eventsList">
+                <?php
+                include 'connection.php';
+                $currentUser = $_SESSION['email'];
+                $sql = "SELECT e.Title, e.Date, e.Location, e.Type, sp.Status 
+                        FROM ShapeParticipant sp 
+                        JOIN Event e ON sp.Title = e.Title 
+                        WHERE sp.Email = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("s", $currentUser);
+                $stmt->execute();
+                $result = $stmt->get_result();
 
-$currentUser = $_SESSION['email']; // get the logged-in user's email
-
-$sql = "SELECT e.Title, e.Date 
-        FROM ShapeParticipant sp 
-        JOIN Event e ON sp.Title = e.Title 
-        WHERE sp.Email = ? AND sp.Status = 'Approved'";
-
-
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $currentUser);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0):
-    while ($row = $result->fetch_assoc()):
-?>
-    <li class="event-item">
-        <div class="event-details">
-            <h3 class="event-name"><?php echo htmlspecialchars($row['Title']); ?></h3>
-            <p class="event-date"><?php echo htmlspecialchars(date("F j, Y", strtotime($row['Date']))); ?></p>
-        </div>
-        <button class="remove-event-btn">Remove</button>
-    </li>
-<?php
-    endwhile;
-else:
-?>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("eventsList").style.display = "none";
-            document.getElementById("noEventsMessage").style.display = "block";
-        });
-    </script>
-<?php
-endif;
-
-$stmt->close();
-
-?>
-    
-</ul>
-
-            <div class="no-events-message" id="noEventsMessage">You have no registered events.</div>
+                if ($result->num_rows > 0):
+                    while ($row = $result->fetch_assoc()):
+                        $statusClass = strtolower($row['Status']);
+                ?>
+                    <li class="event-item <?php echo $statusClass; ?>">
+                        <div class="event-details" onclick="window.location='event.php?title=<?php echo urlencode($row['Title']); ?>'">
+                            <h3 class="event-name"><?php echo htmlspecialchars($row['Title']); ?></h3>
+                            <p class="event-date"><?php echo htmlspecialchars(date("F j, Y", strtotime($row['Date']))); ?></p>
+                            <p class="event-location"><?php echo htmlspecialchars($row['Location']); ?></p>
+                            <p class="event-type"><?php echo htmlspecialchars($row['Type']); ?></p>
+                            <span class="event-status"><?php echo htmlspecialchars($row['Status']); ?></span>
+                        </div>
+                        <button class="remove-event-btn" data-title="<?php echo htmlspecialchars($row['Title']); ?>">Remove</button>
+                    </li>
+                <?php
+                    endwhile;
+                else:
+                ?>
+                    <div class="no-events-message" id="noEventsMessage">You have no registered events.</div>
+                <?php
+                endif;
+                $stmt->close();
+                ?>
+            </ul>
         </section>
 
         <div class="edit-profile-modal" id="editProfileModal">
@@ -143,10 +128,77 @@ $stmt->close();
             </div>
         </div>
 
-        <!-- My Team Members Section -->
         <section class="profile-card">
-            <h2>My Team Members</h2>
-            <div id="team-members" class="team-members-container"></div>
+            <h2>My Teams</h2>
+            <div id="team-members" class="team-members-container">
+                <?php
+                include 'connection.php';
+                $currentUser = $_SESSION['email'];
+                
+                $teamsQuery = "(
+                    SELECT t.Team_Name, 'leader' as role, t.Title 
+                    FROM team t 
+                    WHERE t.Leader_Email = ?
+                ) UNION (
+                    SELECT tm.Team_Name, 'member' as role, t.Title 
+                    FROM team_member tm
+                    JOIN team t ON tm.Team_Name = t.Team_Name
+                    WHERE tm.Member_Email = ? AND tm.Status = 'Accepted'
+                )";
+                
+                $stmt = $conn->prepare($teamsQuery);
+                $stmt->bind_param("ss", $currentUser, $currentUser);
+                $stmt->execute();
+                $teamsResult = $stmt->get_result();
+                
+                if ($teamsResult->num_rows > 0) {
+                    while ($team = $teamsResult->fetch_assoc()) {
+                        echo '<div class="team-section">';
+                        echo '<h3>'.htmlspecialchars($team['Team_Name']).' <span class="team-event">('.htmlspecialchars($team['Title']).')</span></h3>';
+                        
+                        $membersSql = "SELECT u.Name, u.Email,
+                                      CASE WHEN t.Leader_Email = u.Email THEN 'Leader' ELSE 'Member' END as Role
+                                      FROM team_member tm
+                                      JOIN user u ON tm.Member_Email = u.Email
+                                      JOIN team t ON tm.Team_Name = t.Team_Name
+                                      WHERE tm.Team_Name = ? AND tm.Status = 'Accepted'";
+                        
+                        $membersStmt = $conn->prepare($membersSql);
+                        $membersStmt->bind_param("s", $team['Team_Name']);
+                        $membersStmt->execute();
+                        $membersResult = $membersStmt->get_result();
+                        
+                        while ($member = $membersResult->fetch_assoc()) {
+                            echo '<div class="team-member-card">';
+                            echo '<div class="team-member-avatar"></div>';
+                            echo '<div class="team-member-info">';
+                            echo '<p class="team-member-name">'.htmlspecialchars($member['Name']).'</p>';
+                            echo '<p class="team-member-email">'.htmlspecialchars($member['Email']).'</p>';
+                            echo '<p class="member-role">'.htmlspecialchars($member['Role']).'</p>';
+                            
+                            if ($team['role'] === 'leader') {
+                                if ($member['Role'] !== 'Leader') {
+                                    echo '<button class="delete-member-btn" data-email="'.htmlspecialchars($member['Email']).'" 
+                                          data-team="'.htmlspecialchars($team['Team_Name']).'">Remove</button>';
+                                }
+                                echo '<button class="delete-team-btn" data-team="'.htmlspecialchars($team['Team_Name']).'">Delete Team</button>';
+                            } else {
+                                if ($member['Email'] === $currentUser) {
+                                    echo '<button class="leave-team-btn" data-team="'.htmlspecialchars($team['Team_Name']).'">Leave Team</button>';
+                                }
+                            }
+                            
+                            echo '</div></div>';
+                        }
+                        echo '</div>';
+                        $membersStmt->close();
+                    }
+                } else {
+                    echo '<p style="color: white; text-align: center;">No teams yet.</p>';
+                }
+                $stmt->close();
+                ?>
+            </div>
         </section>
         <footer class="copyright">
             Copyright © 2024 Ruaa. All Rights Reserved.
