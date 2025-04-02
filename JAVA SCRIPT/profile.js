@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // عناصر الصفحة
+    // Page elements
     const profileImagePreview = document.getElementById("profileImagePreview");
     const profileImageInput = document.getElementById("profileImageInput");
     const uploadTrigger = document.getElementById("uploadTrigger");
@@ -11,8 +11,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const editProfileModal = document.getElementById("editProfileModal");
     const closeModal = document.getElementById("closeModal");
     const editProfileForm = document.getElementById("editProfileForm");
+    const teamContainer = document.getElementById("team-members");
 
-    // تحميل صورة الملف الشخصي
+    // Upload profile image
     uploadTrigger.addEventListener("click", function () {
         profileImageInput.click();
     });
@@ -32,52 +33,100 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // إظهار/إخفاء الأحداث المسجلة
+    // Show/hide registered events
     showEventsBtn.addEventListener("click", function () {
         registeredEvents.style.display = (registeredEvents.style.display === "block") ? "none" : "block";
         updateEventsVisibility();
     });
 
-    // حذف حدث من القائمة
-   document.addEventListener("click", function (e) {
-    if (e.target.classList.contains("remove-event-btn")) {
-        const eventItem = e.target.closest(".event-item");
-        const title = eventItem.querySelector(".event-name").textContent;
+    // Remove event from list
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("remove-event-btn")) {
+            const eventItem = e.target.closest(".event-item");
+            const title = e.target.getAttribute("data-title");
 
-        if (confirm("Are you sure you want to remove this event?")) {
-            // Send fetch request to remove_event.php
-            fetch("remove_event.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: "title=" + encodeURIComponent(title),
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    eventItem.remove();
-                    updateEventsVisibility();
-                } else {
-                    alert("Failed to remove event: " + data.error);
-                }
-            });
+            if (confirm("Are you sure you want to unregister from this event?")) {
+                fetch("remove_event.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: "title=" + encodeURIComponent(title),
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        eventItem.remove();
+                        updateEventsVisibility();
+                        
+                        if (document.querySelectorAll(".event-item").length === 0) {
+                            noEventsMessage.style.display = "block";
+                        }
+                    } else {
+                        alert("Failed to remove event: " + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while removing the event.");
+                });
+            }
         }
-    }
-});
+    });
 
+    // Remove team member
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("delete-member-btn")) {
+            const memberEmail = e.target.getAttribute("data-email");
+            const teamName = e.target.getAttribute("data-team");
 
-    // تحديث ظهور قائمة الأحداث
+            if (confirm("Are you sure you want to remove this team member?")) {
+                fetch("remove_team_member.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: `email=${encodeURIComponent(memberEmail)}&team=${encodeURIComponent(teamName)}`
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Reload the page to reflect changes
+                        window.location.reload();
+                    } else {
+                        alert("Failed to remove team member: " + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while removing the team member.");
+                });
+            }
+        }
+    });
+
+    // Make event details clickable
+    document.addEventListener("click", function (e) {
+        if (e.target.closest(".event-details")) {
+            const eventItem = e.target.closest(".event-item");
+            const title = eventItem.querySelector(".event-name").textContent;
+            window.location.href = `event.php?title=${encodeURIComponent(title)}`;
+        }
+    });
+
+    // Update events visibility
     function updateEventsVisibility() {
-        eventsList.style.display = (eventsList.children.length === 0) ? "none" : "block";
-        noEventsMessage.style.display = (eventsList.children.length === 0) ? "block" : "none";
+        const hasEvents = eventsList.querySelectorAll(".event-item").length > 0;
+        eventsList.style.display = hasEvents ? "block" : "none";
+        noEventsMessage.style.display = hasEvents ? "none" : "block";
     }
 
-    // عرض نافذة تعديل الملف الشخصي
+    // Show edit profile modal
     editProfileBtn.addEventListener("click", function () {
         editProfileModal.style.display = "flex";
     });
 
+    // Close modal
     closeModal.addEventListener("click", function () {
         editProfileModal.style.display = "none";
     });
@@ -88,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // تحديث معلومات المستخدم
+    // Update user profile
     editProfileForm.addEventListener("submit", function (e) {
         e.preventDefault();
         document.getElementById("username-display").textContent = document.getElementById("username").value;
@@ -98,104 +147,62 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Profile updated successfully!");
     });
 
+    // Initialize
     updateEventsVisibility();
 });
+
 document.addEventListener("DOMContentLoaded", function () {
-    // عناصر الصفحة
-    const teamContainer = document.getElementById("team-members");
+    // Existing elements and event listeners...
 
-    class ProfileManager {
-        constructor() {
-            this.teamMembers = JSON.parse(localStorage.getItem("profileTeamMembers")) || [];
-            this.renderTeamMembers();
-        }
-
-        renderTeamMembers() {
-            teamContainer.innerHTML = "";
-
-            if (this.teamMembers.length === 0) {
-                teamContainer.innerHTML = "<p style='color: white; text-align: center;'>No team members yet.</p>";
-                return;
-            }
-
-            this.teamMembers.forEach((member, index) => {
-                const memberCard = document.createElement("div");
-                memberCard.classList.add("team-member-card");
-
-                memberCard.innerHTML = `
-                    <div class="team-member-avatar"></div>
-                    <div class="team-member-info">
-                        <p class="team-member-name">${member.name}</p>
-                        <p class="team-member-email">${member.email}</p>
-                        <button class="delete-member-btn" data-index="${index}">Remove</button>
-                    </div>
-                `;
-
-                teamContainer.appendChild(memberCard);
-            });
-
-            // إعادة إضافة الأحداث لأزرار الحذف بعد تحديث القائمة
-            document.querySelectorAll(".delete-member-btn").forEach((button) => {
-                button.addEventListener("click", function () {
-                    const index = this.getAttribute("data-index");
-                    removeTeamMember(index);
+    // Leave Team Functionality
+    document.addEventListener("click", function(e) {
+        if (e.target.classList.contains("leave-team-btn")) {
+            const teamName = e.target.getAttribute("data-team");
+            
+            if (confirm("Are you sure you want to leave this team?")) {
+                fetch("leave_team.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: "team=" + encodeURIComponent(teamName)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert("Failed to leave team: " + data.error);
+                    }
                 });
-            });
+            }
         }
-    }
+    });
 
-    function removeTeamMember(index) {
-        let teamMembers = JSON.parse(localStorage.getItem("profileTeamMembers")) || [];
-
-        // عرض رسالة تأكيد قبل الحذف
-        const confirmDelete = confirm(`Are you sure you want to remove ${teamMembers[index].name}?`);
-
-        if (confirmDelete) {
-            teamMembers.splice(index, 1); // حذف العضو من المصفوفة
-            localStorage.setItem("profileTeamMembers", JSON.stringify(teamMembers)); // تحديث البيانات في localStorage
-            renderTeamMembers(); // إعادة عرض القائمة بدون العضو المحذوف
+    // Delete Team Functionality
+    document.addEventListener("click", function(e) {
+        if (e.target.classList.contains("delete-team-btn")) {
+            const teamName = e.target.getAttribute("data-team");
+            
+            if (confirm("Are you sure you want to delete this team? This cannot be undone!")) {
+                fetch("delete_team.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: "team=" + encodeURIComponent(teamName)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert("Failed to delete team: " + data.error);
+                    }
+                });
+            }
         }
-    }
+    });
 
-    function addTeamMember(name, email) {
-        let teamMembers = JSON.parse(localStorage.getItem("profileTeamMembers")) || [];
-        teamMembers.push({ name, email });
-        localStorage.setItem("profileTeamMembers", JSON.stringify(teamMembers));
-        renderTeamMembers();
-    }
-
-    function renderTeamMembers() {
-        let teamMembers = JSON.parse(localStorage.getItem("profileTeamMembers")) || [];
-        teamContainer.innerHTML = "";
-
-        if (teamMembers.length === 0) {
-            teamContainer.innerHTML = "<p style='color: white; text-align: center;'>No team members yet.</p>";
-            return;
-        }
-
-        teamMembers.forEach((member, index) => {
-            const memberCard = document.createElement("div");
-            memberCard.classList.add("team-member-card");
-
-            memberCard.innerHTML = `
-                <div class="team-member-avatar"></div>
-                <div class="team-member-info">
-                    <p class="team-member-name">${member.name}</p>
-                    <p class="team-member-email">${member.email}</p>
-                    <button class="delete-member-btn" data-index="${index}">Remove</button>
-                </div>
-            `;
-
-            teamContainer.appendChild(memberCard);
-        });
-
-        document.querySelectorAll(".delete-member-btn").forEach((button) => {
-            button.addEventListener("click", function () {
-                const index = this.getAttribute("data-index");
-                removeTeamMember(index);
-            });
-        });
-    }
-
-    renderTeamMembers();
+    // Existing code...
 });
