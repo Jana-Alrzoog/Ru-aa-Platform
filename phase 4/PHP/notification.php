@@ -1,24 +1,19 @@
-
 <?php
 session_start();
 require_once 'connection.php';
-
-// ✅ تفعيل الأخطاء للتصحيح أثناء التطوير
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// ✅ التحقق من تسجيل الدخول
 if (!isset($_SESSION['email'])) {
-    die('<p style="color: white; text-align: center;">Please login to view requests.</p>');
+    die('<p style="color: white; text-align: center;">Please login to view notifications.</p>');
 }
 
 $currentUserEmail = $_SESSION['email'];
 
-// ✅ معالجة قبول الدعوة
+// معالجة قبول الدعوة
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accept_notification'])) {
     $notification_id = $_POST['notification_id'];
 
-    // ✅ جلب معلومات الدعوة المقبولة
     $query_notification = "SELECT team_name, email FROM notification WHERE id = ?";
     $stmt_notification = $conn->prepare($query_notification);
     $stmt_notification->bind_param("i", $notification_id);
@@ -30,160 +25,188 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accept_notification']
         $team_name = $row_notification['team_name'];
         $invite_email = $row_notification['email'];
 
-        // ✅ تحديث حالة الدعوة إلى 'Accepted'
-        $update_notification_query = "UPDATE notification SET status = 'Accepted' WHERE id = ?";
-        $stmt_update = $conn->prepare($update_notification_query);
-        $stmt_update->bind_param("i", $notification_id);
+        // Check if team exists
+        $check_team_exists_query = "SELECT * FROM team WHERE Team_Name = ?";
+        $stmt_check_team = $conn->prepare($check_team_exists_query);
+        $stmt_check_team->bind_param("s", $team_name);
+        $stmt_check_team->execute();
+        $result_check_team = $stmt_check_team->get_result();
 
-        if ($stmt_update->execute()) {
-        
-// ✅ التحقق إذا الفريق موجود قبل إدخال العضو في team_member
-$check_team_exists_query = "SELECT * FROM team WHERE Team_Name = ?";
-$stmt_check_team = $conn->prepare($check_team_exists_query);
-$stmt_check_team->bind_param("s", $team_name);
-$stmt_check_team->execute();
-$result_check_team = $stmt_check_team->get_result();
-
-if ($result_check_team->num_rows == 0) {
-    echo '<script>alert("Team not found. Cannot add member! ❗"); window.location.href="notification.php";</script>';
-    exit();
-}
-
-
-// ✅ التحقق إذا العضو موجود قبل إضافته لـ team_member
-$check_member_query = "SELECT * FROM team_member WHERE Team_Name = ? AND Member_Email = ?";
-$stmt_check_member = $conn->prepare($check_member_query);
-$stmt_check_member->bind_param("ss", $team_name, $invite_email);
-$stmt_check_member->execute();
-$result_member = $stmt_check_member->get_result();
-
-if ($result_member->num_rows == 0) {
-    // ✅ إذا ما كان موجود، ندخله
-    $insert_member_query = "INSERT INTO team_member (Team_Name, Member_Email) VALUES (?, ?)";
-    $stmt_member = $conn->prepare($insert_member_query);
-    $stmt_member->bind_param("ss", $team_name, $invite_email);
-    $stmt_member->execute();
-}
-
-
-// ✅ زيادة عدد الأعضاء فقط إذا تمت إضافة العضو بنجاح
-if ($stmt_member->affected_rows > 0) {
-    $update_team_query = "UPDATE team SET Team_Members = Team_Members + 1 WHERE Team_Name = ?";
-    $stmt_team = $conn->prepare($update_team_query);
-    $stmt_team->bind_param("s", $team_name);
-    $stmt_team->execute();
-}
-
-            echo '<script>alert("Invitation accepted successfully! ✅"); window.location.href="notification.php";</script>';
-        } else {
-            echo '<script>alert("Error while accepting the invitation. ❗"); window.location.href="notification.php";</script>';
+        if ($result_check_team->num_rows == 0) {
+            echo '<script>alert("Team not found. Cannot add member! ❗"); window.location.href="notification.php";</script>';
+            exit();
         }
-    } else {
-        echo '<script>alert("Notification not found. ❗"); window.location.href="notification.php";</script>';
+
+        // Get current accepted members count
+        $count_members_query = "SELECT COUNT(*) AS current_members FROM team_member WHERE Team_Name = ?";
+        $stmt_count = $conn->prepare($count_members_query);
+        $stmt_count->bind_param("s", $team_name);
+        $stmt_count->execute();
+        $result_count = $stmt_count->get_result();
+        $row_count = $result_count->fetch_assoc();
+        $current_members = $row_count['current_members'];
+
+        // Get max allowed members
+        $max_query = "SELECT Max_Members FROM team WHERE Team_Name = ?";
+        $stmt_max = $conn->prepare($max_query);
+        $stmt_max->bind_param("s", $team_name);
+        $stmt_max->execute();
+        $result_max = $stmt_max->get_result();
+        $row_max = $result_max->fetch_assoc();
+        $max_members = $row_max['Max_Members'];
+
+        if ($current_members >= $max_members) {
+            // Team is full → reject notification
+            $reject_query = "UPDATE notification SET status = 'Rejected' WHERE id = ?";
+            $stmt_reject = $conn->prepare($reject_query);
+            $stmt_reject->bind_param("i", $notification_id);
+            $stmt_reject->execute();
+
+            echo '<script>alert("Sorry, this team is already full! ❌"); window.location.href="notification.php";</script>';
+            exit();
+        }
+
+        // Check if member already in team
+        $check_member_query = "SELECT * FROM team_member WHERE Team_Name = ? AND Member_Email = ?";
+        $stmt_check_member = $conn->prepare($check_member_query);
+        $stmt_check_member->bind_param("ss", $team_name, $invite_email);
+        $stmt_check_member->execute();
+        $result_member = $stmt_check_member->get_result();
+
+        if ($result_member->num_rows == 0) {
+            $insert_member_query = "INSERT INTO team_member (Team_Name, Member_Email) VALUES (?, ?)";
+            $stmt_member = $conn->prepare($insert_member_query);
+            $stmt_member->bind_param("ss", $team_name, $invite_email);
+            $stmt_member->execute();
+
+            if ($stmt_member->affected_rows > 0) {
+                $update_team_query = "UPDATE team SET Team_Members = Team_Members + 1 WHERE Team_Name = ?";
+                $stmt_team = $conn->prepare($update_team_query);
+                $stmt_team->bind_param("s", $team_name);
+                $stmt_team->execute();
+
+                // ✅ Now update the notification status
+                $update_notification_query = "UPDATE notification SET status = 'Accepted' WHERE id = ?";
+                $stmt_update = $conn->prepare($update_notification_query);
+                $stmt_update->bind_param("i", $notification_id);
+                $stmt_update->execute();
+
+                echo '<script>alert("Invitation accepted successfully! ✅"); window.location.href="notification.php";</script>';
+                exit();
+            }
+        } else {
+            echo '<script>alert("You are already in the team!"); window.location.href="notification.php";</script>';
+            exit();
+        }
     }
 }
 
-// ✅ معالجة رفض الدعوة
+// معالجة رفض الدعوة
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reject_notification'])) {
     $notification_id = $_POST['notification_id'];
-
-    // ✅ تحديث حالة الدعوة إلى 'Rejected'
     $update_query = "UPDATE notification SET status = 'Rejected' WHERE id = ?";
     $stmt_update = $conn->prepare($update_query);
     $stmt_update->bind_param("i", $notification_id);
-
     if ($stmt_update->execute()) {
         echo '<script>alert("Notification rejected successfully!"); window.location.href="notification.php";</script>';
     } else {
         echo '<script>alert("Error rejecting the notification. ❗"); window.location.href="notification.php";</script>';
     }
 }
+
+// جلب إشعارات الإلغاء
+$cancelQuery = "SELECT message, created_at FROM cancellation_notification WHERE email = ? ORDER BY created_at DESC";
+$cancelStmt = $conn->prepare($cancelQuery);
+$cancelStmt->bind_param("s", $currentUserEmail);
+$cancelStmt->execute();
+$cancelResults = $cancelStmt->get_result();
+$cancelStmt->close();
+
+// جلب إشعارات الفريق
+$notificationQuery = "SELECT id, event_title, team_name, status FROM notification WHERE email = ? AND status = 'Pending'";
+$stmt2 = $conn->prepare($notificationQuery);
+$stmt2->bind_param("s", $currentUserEmail);
+$stmt2->execute();
+$notificationResult = $stmt2->get_result();
 ?>
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Ruaa</title>
-        <link
-            href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
-            rel="stylesheet"
-            />
-        <link rel="stylesheet" href="notification.css" />
-        <script src="notification.js" defer></script>
-    </head>
-    <body>
-        <div class="container">
-            <nav>
-                <div class="nav-logo">
-                    <a href="#">
-                        <img src="images/logo_ruaa.png" alt="Ruaa Logo">
-                    </a>
-                </div>
-
-                <ul class="nav-links">
-                    <li class="link"><a href="Home_page.php">Home</a></li>
-                    <li id="link1" class="link"><a href="event.php">Events</a></li>
-                    <li id="link4" class="link"><a href="profile.php">Profile</a></li>
-                </ul>
-            </nav>
-
-            <main class="main-content">
-                <section class="card-container">
-                    <?php
-                    require_once 'connection.php';
-
-                    // Get join requests for the current user based on Member_Email
-                    $requestQuery = "SELECT Team_Name 
-                 FROM team_member 
-                 WHERE Member_Email = ?";
-
-                    $stmt = $conn->prepare($requestQuery);
-                    $stmt->bind_param("s", $currentUserEmail);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-// ✅ جلب الإشعارات للمستخدم الحالي من جدول notification
-$notificationQuery = "SELECT id, event_title, team_name, status FROM notification WHERE email = ? AND status = 'Pending'";
-                    $stmt2 = $conn->prepare($notificationQuery);
-                    $stmt2->bind_param("s", $currentUserEmail);
-                    $stmt2->execute();
-                    $notificationResult = $stmt2->get_result();
-
-if ($notificationResult->num_rows > 0) {
-    while ($row = $notificationResult->fetch_assoc()) {
-        echo '<article class="user-card">
-                <div class="user-info">
-                    <h3 class="username">Notification</h3>
-                    <p class="user-email">You requested to join: ' . htmlspecialchars($row['event_title']) . ' with team: ' . htmlspecialchars($row['team_name']) . '</p>
-                </div>
-                <div class="action-buttons">
-                    <form method="POST" action="notification.php">
-                        <input type="hidden" name="notification_id" value="' . htmlspecialchars($row['id']) . '">
-                        <button type="submit" class="accept-btn" name="accept_notification">Accept</button>
-                    </form>
-                    <form method="POST" action="notification.php">
-                        <input type="hidden" name="notification_id" value="' . htmlspecialchars($row['id']) . '">
-                        <button type="submit" class="reject-btn" name="reject_notification">Reject</button>
-                    </form>
-                </div>
-            </article>';
-    }
-} else {
-    echo '<p style="color: white; text-align: center;">No new notifications.</p>';
-}
-
-
-
-                    $conn->close();
-                    ?>
-                </section>
-            </main>
-
-            <div class="copyright">
-                Copyright © 2024 Ruaa. All Rights Reserved.
-            </div>
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications</title>
+    <link rel="stylesheet" href="notification.css">
+</head>
+<body>
+<div class="container">
+    <nav>
+        <div class="nav-logo">
+            <a href="home.php"><img src="images/logo_ruaa.png" alt="Logo"></a>
         </div>
-    </body>
-</html>
+        <ul class="nav-links">
+            <li class="link"><a href="event.php">Events</a></li>
+            <li class="link"><a href="profile.php">Profile</a></li>
+            <li class="link"><a href="logout.php">Logout</a></li>
+            <li class="link"><a href="notification.php">🔔</a></li>
+        </ul>
+    </nav>
 
+    <div class="main-content">
+
+        <!-- إشعارات إلغاء الأحداث -->
+        <div class="card-container">
+            <h2 style="color:white; margin-bottom:20px;">Cancelled Event Notifications</h2>
+            <?php if ($cancelResults->num_rows > 0): ?>
+                <ul class="notification-list">
+                    <?php while ($row = $cancelResults->fetch_assoc()): ?>
+                        <li class="user-card notification">
+                            <div class="user-info">
+                                
+                                <div>
+                                    <p class="username"><?php echo htmlspecialchars($row['message']); ?></p>
+                                    <small style="color:#555;"><?php echo $row['created_at']; ?></small>
+                                </div>
+                            </div>
+                        </li>
+                    <?php endwhile; ?>
+                </ul>
+            <?php else: ?>
+                <p style="color:white;">No cancelled event notifications.</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- إشعارات الفريق -->
+        <div class="card-container">
+            <h2 style="color:white; margin-bottom:20px;">Team Invitations</h2>
+            <?php if ($notificationResult->num_rows > 0): ?>
+                <?php while ($row = $notificationResult->fetch_assoc()): ?>
+                    <article class="user-card">
+                        <div class="user-info">
+                            <h3 class="username">Notification</h3>
+                            <p class="user-email">You requested to join: <?php echo htmlspecialchars($row['event_title']); ?> with team: <?php echo htmlspecialchars($row['team_name']); ?></p>
+                        </div>
+                        <div class="action-buttons">
+                            <form method="POST" action="notification.php">
+                                <input type="hidden" name="notification_id" value="<?php echo htmlspecialchars($row['id']); ?>">
+                                <button type="submit" class="accept-btn" name="accept_notification">Accept</button>
+                            </form>
+                            <form method="POST" action="notification.php">
+                                <input type="hidden" name="notification_id" value="<?php echo htmlspecialchars($row['id']); ?>">
+                                <button type="submit" class="reject-btn" name="reject_notification">Reject</button>
+                            </form>
+                        </div>
+                    </article>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <p style="color:white;">No team-related notifications.</p>
+            <?php endif; ?>
+        </div>
+
+    </div>
+
+    <div class="copyright">
+        <p>&copy; 2025 Ru'aa Platform. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
