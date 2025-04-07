@@ -28,8 +28,7 @@ $email = $_SESSION['email'];
                 </a>
             </div>
             <ul class="nav-links">
-                <li class="link"><a href="Home_page.php">Home</a></li>
-                <li id="link1"><a href="event.php">Events</a></li>
+                <li class="link"><a href="event.php">Events</a></li>
                 <li class="link"><a href="profile.php">Profile</a></li>
                 <li class="link"><a href="logout.php">Log out</a></li>
                 <li class="link"><a href="notification.php">🔔</a></li>
@@ -129,77 +128,113 @@ $email = $_SESSION['email'];
         </div>
 
         <section class="profile-card">
-            <h2>My Teams</h2>
-            <div id="team-members" class="team-members-container">
-                <?php
-                include 'connection.php';
-                $currentUser = $_SESSION['email'];
+    <h2>My Teams</h2>
+    <div id="team-members" class="team-members-container">
+         <?php
+// ✅ استعلام يعرض الفرق اللي المستخدم قائد فيها
+$leaderTeamsQuery = "SELECT Team_Name, 'leader' as role, Title FROM team WHERE Leader_Email = ?";
+$leaderStmt = $conn->prepare($leaderTeamsQuery);
+$leaderStmt->bind_param("s", $currentUser);
+$leaderStmt->execute();
+$leaderTeamsResult = $leaderStmt->get_result();
+
+if ($leaderTeamsResult->num_rows > 0) {
+    while ($team = $leaderTeamsResult->fetch_assoc()) {
+        echo '<div class="team-section">';
+        echo '<h3>'.htmlspecialchars($team['Team_Name']).' <span class="team-event">('.htmlspecialchars($team['Title']).')</span></h3>';
+
+        $membersSql = "SELECT u.Name, u.Email,
+                      CASE WHEN t.Leader_Email = u.Email THEN 'Leader' ELSE 'Member' END as Role
+                      FROM team_member tm
+                      JOIN user u ON tm.Member_Email = u.Email
+                      JOIN team t ON tm.Team_Name = t.Team_Name
+                      WHERE tm.Team_Name = ?";
+        $membersStmt = $conn->prepare($membersSql);
+        $membersStmt->bind_param("s", $team['Team_Name']);
+        $membersStmt->execute();
+        $membersResult = $membersStmt->get_result();
+
+echo '<div class="team-member-list" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">';
+        while ($member = $membersResult->fetch_assoc()) {
+            echo '<div class="team-member-card">';
+            echo '<div class="team-member-avatar"></div>';
+            echo '<div class="team-member-info">';
+            echo '<p class="team-member-name">'.htmlspecialchars($member['Name']).'</p>';
+            echo '<p class="team-member-email">'.htmlspecialchars($member['Email']).'</p>';
+            echo '<p class="member-role">'.htmlspecialchars($member['Role']).'</p>';
+
+
+
+
+            echo '</div></div>';
+        }
+        echo '</div>';
+        echo '</div>';
+        $membersStmt->close();
+    }
+}
+$leaderStmt->close();
+?>
+
+        <?php
+       
+        
+  $teamsQuery = "(
+   SELECT tm.Team_Name, t.Title, t.Leader_Email
+   FROM team_member tm
+   JOIN team t ON tm.Team_Name = t.Team_Name
+   WHERE tm.Member_Email = ? AND t.Leader_Email != ?
+)";
+
+        
+        $stmt = $conn->prepare($teamsQuery);
+        $stmt->bind_param("ss", $currentUser, $currentUser);
+        $stmt->execute();
+        $teamsResult = $stmt->get_result();
+        
+        if ($teamsResult->num_rows > 0) {
+            while ($team = $teamsResult->fetch_assoc()) {
+                echo '<div class="team-section">';
+                echo '<h3>'.htmlspecialchars($team['Team_Name']).' <span class="team-event">('.htmlspecialchars($team['Title']).')</span></h3>';
                 
-                $teamsQuery = "(
-                    SELECT t.Team_Name, 'leader' as role, t.Title 
-                    FROM team t 
-                    WHERE t.Leader_Email = ?
-                ) UNION (
-                    SELECT tm.Team_Name, 'member' as role, t.Title 
-                    FROM team_member tm
-                    JOIN team t ON tm.Team_Name = t.Team_Name
-                    WHERE tm.Member_Email = ? AND tm.Status = 'Accepted'
-                )";
+                $membersSql = "SELECT u.Name, u.Email,
+                              CASE WHEN t.Leader_Email = u.Email THEN 'Leader' ELSE 'Member' END as Role
+                              FROM team_member tm
+                              JOIN user u ON tm.Member_Email = u.Email
+                              JOIN team t ON tm.Team_Name = t.Team_Name
+                              WHERE tm.Team_Name = ? ";
                 
-                $stmt = $conn->prepare($teamsQuery);
-                $stmt->bind_param("ss", $currentUser, $currentUser);
-                $stmt->execute();
-                $teamsResult = $stmt->get_result();
+                $membersStmt = $conn->prepare($membersSql);
+                $membersStmt->bind_param("s", $team['Team_Name']);
+                $membersStmt->execute();
+                $membersResult = $membersStmt->get_result();
                 
-                if ($teamsResult->num_rows > 0) {
-                    while ($team = $teamsResult->fetch_assoc()) {
-                        echo '<div class="team-section">';
-                        echo '<h3>'.htmlspecialchars($team['Team_Name']).' <span class="team-event">('.htmlspecialchars($team['Title']).')</span></h3>';
-                        
-                        $membersSql = "SELECT u.Name, u.Email,
-                                      CASE WHEN t.Leader_Email = u.Email THEN 'Leader' ELSE 'Member' END as Role
-                                      FROM team_member tm
-                                      JOIN user u ON tm.Member_Email = u.Email
-                                      JOIN team t ON tm.Team_Name = t.Team_Name
-                                      WHERE tm.Team_Name = ? AND tm.Status = 'Accepted'";
-                        
-                        $membersStmt = $conn->prepare($membersSql);
-                        $membersStmt->bind_param("s", $team['Team_Name']);
-                        $membersStmt->execute();
-                        $membersResult = $membersStmt->get_result();
-                        
-                        while ($member = $membersResult->fetch_assoc()) {
-                            echo '<div class="team-member-card">';
-                            echo '<div class="team-member-avatar"></div>';
-                            echo '<div class="team-member-info">';
-                            echo '<p class="team-member-name">'.htmlspecialchars($member['Name']).'</p>';
-                            echo '<p class="team-member-email">'.htmlspecialchars($member['Email']).'</p>';
-                            echo '<p class="member-role">'.htmlspecialchars($member['Role']).'</p>';
-                            
-                            if ($team['role'] === 'leader') {
-                                if ($member['Role'] !== 'Leader') {
-                                    echo '<button class="delete-member-btn" data-email="'.htmlspecialchars($member['Email']).'" 
-                                          data-team="'.htmlspecialchars($team['Team_Name']).'">Remove</button>';
-                                }
-                                echo '<button class="delete-team-btn" data-team="'.htmlspecialchars($team['Team_Name']).'">Delete Team</button>';
-                            } else {
-                                if ($member['Email'] === $currentUser) {
-                                    echo '<button class="leave-team-btn" data-team="'.htmlspecialchars($team['Team_Name']).'">Leave Team</button>';
-                                }
-                            }
-                            
-                            echo '</div></div>';
-                        }
-                        echo '</div>';
-                        $membersStmt->close();
-                    }
-                } else {
-                    echo '<p style="color: white; text-align: center;">No teams yet.</p>';
-                }
-                $stmt->close();
-                ?>
-            </div>
-        </section>
+                echo '<div class="team-member-list">'; // ➕ نضيف هذا السطر قبل اللوب
+
+while ($member = $membersResult->fetch_assoc()) {
+    echo '<div class="team-member-card">';
+    echo '<div class="team-member-avatar"></div>';
+    echo '<div class="team-member-info">';
+    echo '<p class="team-member-name">'.htmlspecialchars($member['Name']).'</p>';
+    echo '<p class="team-member-email">'.htmlspecialchars($member['Email']).'</p>';
+    echo '<p class="member-role">'.htmlspecialchars($member['Role']).'</p>';
+
+
+
+    echo '</div></div>'; // end team-member-info + card
+}
+
+                echo '</div>';
+                $membersStmt->close();
+            }
+        } else {
+            echo '<p style="color: white; text-align: center;">No teams yet.</p>';
+        }
+        $stmt->close();
+        ?>
+    </div>
+</section>
+
         <footer class="copyright">
             Copyright © 2024 Ruaa. All Rights Reserved.
         </footer>
