@@ -2,14 +2,43 @@
 session_start();
 require_once 'connection.php';
 
+// ✅ تهيئة مصفوفة الدعوات إذا لم تكن موجودة
 if (!isset($_SESSION['invited_emails'])) {
     $_SESSION['invited_emails'] = [];
+}
+
+// ✅ دالة للتحقق هل المستخدم منضم لفريق في نفس الحدث
+function isAlreadyInTeam($conn, $email, $event_title) {
+    // التحقق إذا كان قائد لفريق بنفس الحدث
+    $leaderQuery = "SELECT * FROM team WHERE Leader_Email = ? AND Title = ?";
+    $stmtLeader = $conn->prepare($leaderQuery);
+    $stmtLeader->bind_param("ss", $email, $event_title);
+    $stmtLeader->execute();
+    $resultLeader = $stmtLeader->get_result();
+    if ($resultLeader->num_rows > 0) {
+        return true;
+    }
+
+    // التحقق إذا كان عضو في فريق بنفس الحدث
+    $memberQuery = "SELECT tm.Team_Name 
+                    FROM team_member tm
+                    JOIN team t ON tm.Team_Name = t.Team_Name
+                    WHERE tm.Member_Email = ? AND t.Title = ?";
+    $stmtMember = $conn->prepare($memberQuery);
+    $stmtMember->bind_param("ss", $email, $event_title);
+    $stmtMember->execute();
+    $resultMember = $stmtMember->get_result();
+    if ($resultMember->num_rows > 0) {
+        return true;
+    }
+
+    return false;
 }
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-
+// ✅ جلب اسم المستخدم والإيميل من profile.php
 $profile_query = "SELECT Name, Email FROM User WHERE Email = ?";
 $profile_stmt = $conn->prepare($profile_query);
 $profile_stmt->bind_param("s", $_SESSION['email']);
@@ -22,7 +51,7 @@ if ($profile_result->num_rows > 0) {
     $_SESSION['email'] = $profile_data['Email'];
 }
 
-
+// ✅ تعريف المتغيرات الأساسية
 $team_name = '';
 $team_idea = '';
 $event_title = isset($_GET['event_title']) ? urldecode($_GET['event_title']) : '';
@@ -31,7 +60,7 @@ if (!empty($event_title)) {
     $_SESSION['event_title'] = $event_title;
 }
 
-
+// ✅ جلب الحد الأقصى للمشاركين من الحدث
 $query_event = "SELECT Max_Participants FROM event WHERE Title = ?";
 $stmt_event = $conn->prepare($query_event);
 $stmt_event->bind_param("s", $event_title);
@@ -42,10 +71,10 @@ if ($result_event->num_rows > 0) {
     $row_event = $result_event->fetch_assoc();
     $max_members = $row_event['Max_Participants'];
 } else {
-    $max_members = 10;
+    $max_members = 10; // افتراضي في حال عدم العثور على الحدث
 }
 
-
+// ✅ التحقق من إرسال الدعوة
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_request'])) {
     $invite_email = trim($_POST['invite_email']);
     $team_name = trim($_POST['team_name']);
@@ -57,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_request'])) {
     } elseif (empty($event_title)) {
         echo "<script>alert('Event not found. ❗');</script>";
     } else {
-     
+        // ✅ التحقق من وجود الفريق قبل إرسال الدعوة
         $check_team_query = "SELECT * FROM team WHERE Team_Name = ?";
         $stmt_check_team = $conn->prepare($check_team_query);
         $stmt_check_team->bind_param("s", $team_name);
@@ -102,13 +131,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_request'])) {
 }
 
 
-
+// ✅ معالجة طلب Submit الفريق
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_team'])) {
     $team_name = $_POST['team_name'];
     $team_idea = $_POST['team_idea'];
     $leader_email = $_SESSION['email'];
 
+    // ✅ التحقق إذا المستخدم مسجل في فريق آخر بنفس الحدث
+    $check_membership = "SELECT * FROM team t 
+                     LEFT JOIN team_member tm ON t.Team_Name = tm.Team_Name
+                     WHERE t.Title = ? AND (t.Leader_Email = ? OR tm.Member_Email = ?)";
 
+    $check_stmt = $conn->prepare($check_membership);
+    $check_stmt->bind_param("sss", $event_title, $leader_email, $leader_email);
+    $check_stmt->execute();
+    $membership_result = $check_stmt->get_result();
+
+    if ($membership_result->num_rows > 0) {
+        echo "<script>
+    alert('You are already part of a team in this event. ❗');
+    window.location.href = 'event.php';
+</script>";
+        exit;
+    }
+
+
+// ✅ التحقق إذا الفريق موجود مسبقًا فقط في جدول team وليس في notification
     $check_team_query = "SELECT * FROM team WHERE Team_Name = ?";
     $check_team_stmt = $conn->prepare($check_team_query);
     $check_team_stmt->bind_param("s", $team_name);
@@ -116,43 +164,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_team'])) {
     $check_team_result = $check_team_stmt->get_result();
 
     if ($check_team_result->num_rows == 0) {
-       
+        // ✅ إدخال الفريق الجديد
         $insert_query = "INSERT INTO team (Team_Name, Team_Members, Team_Idea, Max_Members, Status, Title, Leader_Email) VALUES (?, 1, ?, ?, 'Pending', ?, ?)";
         $insert_team_stmt = $conn->prepare($insert_query);
         $insert_team_stmt->bind_param("ssiss", $team_name, $team_idea, $max_members, $event_title, $leader_email);
 
         if ($insert_team_stmt->execute()) {
-         
+            // ✅ إدخال القائد في جدول registration
             $insert_registration_query = "INSERT INTO registration (Team_Name, Idea, Name, Email) VALUES (?, ?, ?, ?)";
             $stmt_registration = $conn->prepare($insert_registration_query);
             $stmt_registration->bind_param("ssss", $team_name, $team_idea, $_SESSION['user'], $_SESSION['email']);
             $stmt_registration->execute();
 
+            // ✅ إدخال القائد عند إنشاء الفريق في team_member
             $insert_leader_query = "INSERT INTO team_member (Team_Name, Member_Email) VALUES (?, ?)";
             $stmt_leader = $conn->prepare($insert_leader_query);
             $stmt_leader->bind_param("ss", $team_name, $leader_email);
             $stmt_leader->execute();
 
-         
-            foreach ($_SESSION['invited_emails'] as $invite_email) {
+            // ✅ إدخال القائد في ShapeParticipant
+            $insert_shape_stmt = $conn->prepare("INSERT INTO ShapeParticipant (Email, Title, Status) VALUES (?, ?, 'Pending')");
+            $insert_shape_stmt->bind_param("ss", $leader_email, $event_title);
+            $insert_shape_stmt->execute();
 
+            // ✅ إدخال الدعوات المرسلة في جدول team_member و registration
+            foreach ($_SESSION['invited_emails'] as $invite_email) {
+                // ✅ إدخال في جدول team_member
+// ✅ التحقق إذا العضو موجود قبل إضافته لـ team_member
                 $check_member_query = "SELECT * FROM team_member WHERE Team_Name = ? AND Member_Email = ?";
                 $stmt_check_member = $conn->prepare($check_member_query);
                 $stmt_check_member->bind_param("ss", $team_name, $invite_email);
                 $stmt_check_member->execute();
                 $result_member = $stmt_check_member->get_result();
 
+                // ✅ التحقق إذا العضو موجود مسبقًا في ShapeParticipant
+                $check_shape_stmt = $conn->prepare("SELECT * FROM ShapeParticipant WHERE Email = ? AND Title = ?");
+                $check_shape_stmt->bind_param("ss", $invite_email, $event_title);
+                $check_shape_stmt->execute();
+                $shape_result = $check_shape_stmt->get_result();
+
+                if ($shape_result->num_rows == 0) {
+                    // ✅ إذا ما كان موجود، ندخله
+                    $insert_shape_stmt = $conn->prepare("INSERT INTO ShapeParticipant (Email, Title, Status) VALUES (?, ?, 'Pending')");
+                    $insert_shape_stmt->bind_param("ss", $invite_email, $event_title);
+                    $insert_shape_stmt->execute();
+                }
+
+
                 if ($result_member->num_rows == 0) {
-                   
+                    // ✅ إذا ما كان موجود، ندخله
                     $insert_invite_query = "INSERT INTO team_member (Team_Name, Member_Email) VALUES (?, ?)";
                     $invite_stmt = $conn->prepare($insert_invite_query);
                     $invite_stmt->bind_param("ss", $team_name, $invite_email);
                     $invite_stmt->execute();
                 }
-                $invite_stmt = $conn->prepare($insert_invite_query);
-                $invite_stmt->bind_param("ss", $team_name, $invite_email);
-                $invite_stmt->execute();
+               
 
+                // ✅ جلب اسم العضو من جدول User
                 $get_user_query = "SELECT Name FROM User WHERE Email = ?";
                 $stmt_get_user = $conn->prepare($get_user_query);
                 $stmt_get_user->bind_param("s", $invite_email);
@@ -163,16 +231,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_team'])) {
                     $user_data = $user_result->fetch_assoc();
                     $member_name = $user_data['Name'];
 
-                   
+                    // ✅ إدخال العضو في جدول registration
                     $stmt_registration->bind_param("ssss", $team_name, $team_idea, $member_name, $invite_email);
                     $stmt_registration->execute();
                 }
             }
 
-           
+            // ✅ تفريغ المصفوفة بعد إرسال الدعوات
             $_SESSION['invited_emails'] = [];
 
-        
+            // ✅ إعادة التوجيه لصفحة تفاصيل الحدث
             echo "<script>alert('Team registered successfully! 🎉'); window.location.href='event_details.php?title=" . urlencode($event_title) . "';</script>";
         } else {
             echo "<script>alert('Error while creating team. ❗');</script>";
@@ -236,43 +304,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_team'])) {
                             id="team-email"
                             name="invite_email"
                             class="input-field"
-                            required
+                            value="<?php echo $_SESSION['email']; ?>"
+                            readonly
                             />
-                        
+
 
                     </section>
 
-             
+                    <!-- ✅ أزرار Look for Team و I have a Team -->
                     <div class="team-options">
                         <a
                             href="Looking_For_Team.php?event_title=<?= urlencode($event_title) ?>&team_name=<?= urlencode($team_name) ?>"
                             class="team-button-look"
                             >Look for Team</a
                         >
-                    
+
                     </div>
-    
-                        <small style="color: #ccc; display: block; margin-top: 5px;">
-                            ※ Please create the team first using "Submit", then come back to invite members using the same team name.
-                        </small>
-                    <div class="team-section">
-                        <h2 class="section-title">Add Team Members :</h2>
 
-                        <div class="email-section">
-                            <label for="team-email" class="input-label">Email :</label>
-                            <input
-                                type="email"
-                                id="team-email"
-                                name="invite_email"
-                                class="input-field"
-                                required
-                                />
-                        </div>
+                    <small style="color: #ccc; display: block; margin-top: 10px; text-align: center;">
+                        ※ Please create the team first using "Submit", then come back to invite members using the same team name.※
+                    </small>
 
-                        <button type="submit" name="send_request" class="send-button">
+                    <br>
+                    <section class="form-section">
+                        <h2 class="section-title" style="text-align: center;">Add Team Members :</h2>
+
+                        <label for="team-email" class="input-label">Email :</label>
+                        <input
+                            type="email"
+                            id="team-email"
+                            name="invite_email"
+                            class="input-field"
+                            required
+                            />
+
+                        <button type="submit" name="send_request" class="send-button" style="display: block; margin: 15px auto;">
                             Send Request
                         </button>
-                    </div>
+
+                    </section>
+
 
                     <div class="idea-section">
                         <div class="form-section">
@@ -300,40 +371,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_team'])) {
 
                 </form>
             </main>
-
-            <footer class="container">
-                <span class="blur"></span>
-                <span class="blur"></span>
-                <div class="column">
-                    <div class="logo">
-                        <img src="images/logo_ruaa.png" alt="Ruaa Logo" />
-                    </div>
-                    <p>
-                        Connecting innovators, fostering collaboration, and hosting
-                        top-tier hackathons & workshops worldwide.
-                    </p>
-                </div>
-                <div class="column">
-                    <h4>Explore</h4>
-                    <a href="#">Events</a>
-                    <a href="#">Workshops</a>
-                    <a href="#">Hackathons</a>
-                </div>
-                <div class="column">
-                    <h4>About</h4>
-                    <a href="#">Mission</a>
-                    <a href="#">Contact</a>
-                </div>
-                <div class="column">
-                    <h4>Legal</h4>
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
-                </div>
-            </footer>
-
-            <div class="copyright">
-                Copyright © 2024 Ruaa. All Rights Reserved.
+  <footer class="container">
+        <span class="blur"></span>
+        <span class="blur"></span>
+        <div class="column">
+            <div class="logo">
+                <img src="images/logo_ruaa.png" alt="Ruaa Logo">
             </div>
+            <p>
+                Connecting innovators, fostering collaboration, and hosting top-tier hackathons & workshops worldwide.
+            </p>
+            <div class="socials">
+                <a href="#"><i class="ri-linkedin-box-line"></i></a>
+                <a href="#"><i class="ri-twitter-line"></i></a>
+                <a href="#"><i class="ri-discord-line"></i></a>
+            </div>
+        </div>
+        <div class="column">
+            <h4>Explore</h4>
+            <a href="#">Events</a>
+            <a href="#">Workshops</a>
+            <a href="#">Hackathons</a>
+        </div>
+        <div class="column">
+            <h4>About</h4>
+            <a href="#">Mission</a>
+            <a href="#">Contact</a>
+        </div>
+        <div class="column">
+            <h4>Legal</h4>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+    </footer>
+
+    <div class="copyright">
+        Copyright © 2024 Ruaa. All Rights Reserved.
+    </div>
         </div>
     </body>
 </html>
