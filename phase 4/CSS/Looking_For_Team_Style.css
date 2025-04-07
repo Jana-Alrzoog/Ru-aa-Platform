@@ -477,39 +477,6 @@ footer .column > a:hover{
     }
 }
 
-.copyright {
-    color: #fff;
-    font-size: 12.8px;
-}
-
-/* Responsive styles */
-@media (max-width: 991px) {
-    .header {
-        padding: 32px 20px;
-    }
-
-    .main-content {
-        padding: 0 20px;
-    }
-
-    .participants-section {
-        margin-top: 80px;
-    }
-
-    .participants-container {
-        width: 100%;
-    }
-
-    .join-team-btn {
-        right: 20px;
-        width: 190px;
-    }
-
-    .footer {
-        padding: 16px 20px;
-    }
-}
-
 @media (max-width: 640px) {
     .header {
         padding: 16px;
@@ -548,9 +515,7 @@ footer .column > a:hover{
         height: 350px;
     }
 
-    .footer {
-        padding: 16px;
-    }
+   
     
 .team-name-section {
     margin-top: 30px; /* نزول العنصر أكثر */
