@@ -14,7 +14,7 @@ $team_name = $data['team_name'];
 $event_title = $data['event_title'];
 $email = $data['email'];
 
-
+// تحقق إذا الفريق موجود
 $check_team = $conn->prepare("SELECT * FROM team WHERE Team_Name = ?");
 $check_team->bind_param("s", $team_name);
 $check_team->execute();
@@ -31,10 +31,10 @@ if ($result->num_rows == 0) {
 if ($action === 'send_request') {
     $email = $data['email'];
     $event_title = $data['event_title'];
-    $team_name = "Pending Team"; 
+    $team_name = "Pending Team"; // مؤقتًا حتى يتم تأكيد الفريق
 
     if (!empty($email)) {
-       
+        // ✅ التحقق إذا الدعوة موجودة مسبقًا
         $check_query = "SELECT * FROM team_member WHERE Member_Email = ? AND Team_Name = ?";
         $check_stmt = $conn->prepare($check_query);
         $check_stmt->bind_param("ss", $email, $team_name);
@@ -42,7 +42,7 @@ if ($action === 'send_request') {
         $check_result = $check_stmt->get_result();
 
         if ($check_result->num_rows == 0) {
-            
+            // ✅ إدخال الدعوة الجديدة
             $insert_query = "INSERT INTO team_member (Team_Name, Member_Email, Status) VALUES (?, ?, 'Pending')";
             $insert_stmt = $conn->prepare($insert_query);
             $insert_stmt->bind_param("ss", $team_name, $email);
@@ -64,7 +64,7 @@ if ($action === 'add_participant') {
     $email = $data['email'];
     $event_title = $data['event_title'];
 
-  
+    // ✅ التحقق من عدم وجود الشخص مسبقًا في نفس الحدث
     $check_query = "SELECT * FROM shapeparticipant WHERE Email = ? AND Title = ?";
     $check_stmt = $conn->prepare($check_query);
     $check_stmt->bind_param("ss", $email, $event_title);
@@ -72,7 +72,7 @@ if ($action === 'add_participant') {
     $check_result = $check_stmt->get_result();
 
     if ($check_result->num_rows == 0) {
- 
+        // ✅ إدخال الشخص في shapeparticipant مع الحدث الصحيح
         $insert_query = "INSERT INTO shapeparticipant (Email, Title, Status) VALUES (?, ?, 'Pending')";
         $insert_stmt = $conn->prepare($insert_query);
         $insert_stmt->bind_param("ss", $email, $event_title);
@@ -88,6 +88,7 @@ if ($action === 'add_participant') {
 }
 
 
+// ✅ إزالة المستخدم من shapeparticipant عند اختيار "I Have a Team"
 if ($action === 'remove_participant') {
     $email = $data['email'];
     $event_title = $data['event_title'];
@@ -109,7 +110,7 @@ if ($action === 'add_to_notifications') {
     $team_name = isset($data['team_name']) ? $data['team_name'] : 'Default Team';
 
     if ($email && $event_title && $team_name) {
-
+        // ✅ التأكد إذا كان الإشعار موجود مسبقًا
         $check_query = "SELECT * FROM notification WHERE email = ? AND event_title = ? AND team_name = ? AND status = 'Pending'";
         $check_stmt = $conn->prepare($check_query);
         $check_stmt->bind_param("sss", $email, $event_title, $team_name);
@@ -117,7 +118,7 @@ if ($action === 'add_to_notifications') {
         $check_result = $check_stmt->get_result();
 
         if ($check_result->num_rows == 0) {
-           
+            // ✅ إضافة الإشعار إذا لم يكن موجودًا مسبقًا
             $query = "INSERT INTO notification (email, event_title, team_name, status) VALUES (?, ?, ?, 'Pending')";
             $stmt = $conn->prepare($query);
             $stmt->bind_param("sss", $email, $event_title, $team_name);
