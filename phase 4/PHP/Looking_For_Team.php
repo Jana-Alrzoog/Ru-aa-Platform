@@ -2,11 +2,11 @@
 session_start();
 require_once 'connection.php';
 
-
+// ✅ استقبال اسم الحدث واسم التيم بشكل صحيح
 $event_title = isset($_GET['event_title']) ? urldecode($_GET['event_title']) : (isset($_SESSION['event_title']) ? $_SESSION['event_title'] : '');
 $team_name = isset($_GET['team_name']) ? urldecode($_GET['team_name']) : (isset($_SESSION['team_name']) ? $_SESSION['team_name'] : 'Default Team');
 
-
+// ✅ تخزين القيم في الجلسة
 if (!empty($event_title)) {
     $_SESSION['event_title'] = $event_title;
 }
@@ -16,7 +16,7 @@ if (!empty($event_title)) {
 }
 
 
-
+// ✅ جلب المشاركين الذين يبحثون عن فريق حسب اسم الحدث
 $query = "SELECT Email FROM shapeparticipant WHERE Title = ? AND Status = 'Pending'";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $event_title);
@@ -93,7 +93,7 @@ if ($result->num_rows > 0) {
                                 </div>
 
 
-                           
+                                <!-- ✅ الزر خارج الكرت هنا -->
                                 <button class="add-to-notifications-btn" onclick="addToNotifications('<?php echo htmlspecialchars($email); ?>')">
     Send Request
 </button>
@@ -109,8 +109,8 @@ if ($result->num_rows > 0) {
 
         <script>
          function addToNotifications(email) {
-    const eventTitle = document.getElementById("eventTitle").value; 
-    const teamName = document.getElementById("teamNameInput").value; 
+    const eventTitle = document.getElementById("eventTitle").value; // ✅ جلب اسم الهاكاثون
+    const teamName = document.getElementById("teamNameInput").value; // ✅ جلب اسم الفريق من الحقل
 
     if (!email || email === "") {
         alert("Please select a valid participant.");
@@ -130,7 +130,7 @@ if ($result->num_rows > 0) {
         body: JSON.stringify({
             action: "add_to_notifications",
             email: email,
-            event_title: eventTitle, 
+            event_title: eventTitle, // ✅ تمرير اسم الايفنت الصحيح
             team_name: teamName,
         }),
     })
@@ -148,7 +148,7 @@ if ($result->num_rows > 0) {
 
 document.getElementById("join-team-btn").addEventListener("click", function () {
     const email = document.getElementById("userEmail").value;
-    const eventTitle = document.getElementById("eventTitle").value; 
+    const eventTitle = document.getElementById("eventTitle").value; // ✅ الحدث يتم إرساله هنا
 
     if (email && eventTitle) {
         fetch("API.php", {
@@ -179,7 +179,7 @@ document.getElementById("join-team-btn").addEventListener("click", function () {
 
 
 
-
+// ✅ إزالة المستخدم عند الضغط على I Have a Team
 document.getElementById("leave-team-btn").addEventListener("click", function () {
     const email = document.getElementById("userEmail").value;
     const eventTitle = document.getElementById("eventTitle").value;
@@ -200,7 +200,7 @@ document.getElementById("leave-team-btn").addEventListener("click", function () 
         .then((data) => {
             alert(data.message);
             if (data.status === "success") {
-                
+                // ✅ إعادة توجيه إلى Team_Form بعد الحذف بنجاح
                 window.location.href = `Team_Form.php?event_title=${encodeURIComponent(eventTitle)}`;
             }
         })
@@ -213,5 +213,42 @@ document.getElementById("leave-team-btn").addEventListener("click", function () 
 });
 
         </script>
+          <footer class="container">
+        <span class="blur"></span>
+        <span class="blur"></span>
+        <div class="column">
+            <div class="logo">
+                <img src="images/logo_ruaa.png" alt="Ruaa Logo">
+            </div>
+            <p>
+                Connecting innovators, fostering collaboration, and hosting top-tier hackathons & workshops worldwide.
+            </p>
+            <div class="socials">
+                <a href="#"><i class="ri-linkedin-box-line"></i></a>
+                <a href="#"><i class="ri-twitter-line"></i></a>
+                <a href="#"><i class="ri-discord-line"></i></a>
+            </div>
+        </div>
+        <div class="column">
+            <h4>Explore</h4>
+            <a href="#">Events</a>
+            <a href="#">Workshops</a>
+            <a href="#">Hackathons</a>
+        </div>
+        <div class="column">
+            <h4>About</h4>
+            <a href="#">Mission</a>
+            <a href="#">Contact</a>
+        </div>
+        <div class="column">
+            <h4>Legal</h4>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+    </footer>
+
+    <div class="copyright">
+        Copyright © 2024 Ruaa. All Rights Reserved.
+    </div>
     </body>
 </html>
