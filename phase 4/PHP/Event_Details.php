@@ -48,7 +48,7 @@ $conn->close();
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Event Details</title> <!-- العنوان ثابت هنا -->
+    <title >Event Details</title> <!-- العنوان ثابت هنا -->
     <link rel="stylesheet" href="Event_Details.css">
     <style>
       .event-details-container,
@@ -68,15 +68,18 @@ $conn->close();
               </a>
           </div>
           <ul class="nav-links">
-              <li class="link"><a href="Home_page.php">Home</a></li>
               <li class="link"><a href="event.php">Events</a></li>
-              <li class="link"><a href="profile.php">Profile</a></li>
+                <li class="link"><a href="profile.php">Profile</a></li>
+                <li class="link"><a href="logout.php">Log out</a></li>
+                <li class="link"><a href="notification.php">🔔</a></li>
           </ul>
         </nav>
 
-        <header class="header-container">
-          <h1 class="page-title">Event Details</h1> <!-- العنوان ثابت هنا -->
-        </header>
+       
+
+<h1 class="page-title" style="display: flex; justify-content: center; align-items: center; text-align: center; margin-bottom: 30px;">Event Details</h1>
+
+        
 
         <section class="event-info-container">
           <?php if ($image !== ""): ?>
@@ -119,34 +122,43 @@ $conn->close();
           ?>
         </div>
 
-        <footer class="container">
-          <span class="blur"></span>
-          <span class="blur"></span>
-          <div class="column">
-              <div class="logo">
-                  <img src="images/logo_ruaa.png" alt="Ruaa Logo">
-              </div>
-              <p>
-                  Connecting innovators, fostering collaboration, and hosting top-tier hackathons & workshops worldwide.
-              </p>
-          </div>
-          <div class="column">
-              <h4>Explore</h4>
-              <a href="#">Events</a>
-              <a href="#">Workshops</a>
-              <a href="#">Hackathons</a>
-          </div>
-          <div class="column">
-              <h4>About</h4>
-              <a href="#">Mission</a>
-              <a href="#">Contact</a>
-          </div>
-          <div class="column">
-              <h4>Legal</h4>
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Service</a>
-          </div>
-        </footer>
+         <footer class="container">
+        <span class="blur"></span>
+        <span class="blur"></span>
+        <div class="column">
+            <div class="logo">
+                <img src="images/logo_ruaa.png" alt="Ruaa Logo">
+            </div>
+            <p>
+                Connecting innovators, fostering collaboration, and hosting top-tier hackathons & workshops worldwide.
+            </p>
+            <div class="socials">
+                <a href="#"><i class="ri-linkedin-box-line"></i></a>
+                <a href="#"><i class="ri-twitter-line"></i></a>
+                <a href="#"><i class="ri-discord-line"></i></a>
+            </div>
+        </div>
+        <div class="column">
+            <h4>Explore</h4>
+            <a href="#">Events</a>
+            <a href="#">Workshops</a>
+            <a href="#">Hackathons</a>
+        </div>
+        <div class="column">
+            <h4>About</h4>
+            <a href="#">Mission</a>
+            <a href="#">Contact</a>
+        </div>
+        <div class="column">
+            <h4>Legal</h4>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+    </footer>
+
+    <div class="copyright">
+        Copyright © 2024 Ruaa. All Rights Reserved.
+    </div>
       </div>
     </main>
   </body>
