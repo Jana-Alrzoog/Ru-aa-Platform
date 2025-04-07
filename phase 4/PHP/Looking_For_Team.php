@@ -2,21 +2,21 @@
 session_start();
 require_once 'connection.php';
 
-// ✅ استقبال اسم الحدث واسم التيم بشكل صحيح
+
 $event_title = isset($_GET['event_title']) ? urldecode($_GET['event_title']) : (isset($_SESSION['event_title']) ? $_SESSION['event_title'] : '');
 $team_name = isset($_GET['team_name']) ? urldecode($_GET['team_name']) : (isset($_SESSION['team_name']) ? $_SESSION['team_name'] : 'Default Team');
 
-// ✅ تخزين القيم في الجلسة
-if (!empty($event_title)) {
-    $_SESSION['event_title'] = $event_title;
-}
 
 if (!empty($event_title)) {
     $_SESSION['event_title'] = $event_title;
 }
 
+if (!empty($event_title)) {
+    $_SESSION['event_title'] = $event_title;
+}
 
-// ✅ جلب المشاركين الذين يبحثون عن فريق حسب اسم الحدث
+
+
 $query = "SELECT Email FROM shapeparticipant WHERE Title = ? AND Status = 'Pending'";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("s", $event_title);
@@ -53,9 +53,10 @@ if ($result->num_rows > 0) {
                         </a>
                     </div>
                     <ul class="nav-links">
-                        <li class="link"><a href="organizer_page.php">Home</a></li>
-                        <li class="link"><a href="event.php">Events</a></li>
-                        <li class="link"><a href="profile.php">Profile</a></li>
+                       <li class="link"><a href="event.php">Events</a></li>
+                <li class="link"><a href="profile.php">Profile</a></li>
+                <li class="link"><a href="logout.php">Log out</a></li>
+                <li class="link"><a href="notification.php">🔔</a></li>
                     </ul>
                 </nav>
             </header>
@@ -92,7 +93,7 @@ if ($result->num_rows > 0) {
                                 </div>
 
 
-                                <!-- ✅ الزر خارج الكرت هنا -->
+                           
                                 <button class="add-to-notifications-btn" onclick="addToNotifications('<?php echo htmlspecialchars($email); ?>')">
     Send Request
 </button>
@@ -108,8 +109,8 @@ if ($result->num_rows > 0) {
 
         <script>
          function addToNotifications(email) {
-    const eventTitle = document.getElementById("eventTitle").value; // ✅ جلب اسم الهاكاثون
-    const teamName = document.getElementById("teamNameInput").value; // ✅ جلب اسم الفريق من الحقل
+    const eventTitle = document.getElementById("eventTitle").value; 
+    const teamName = document.getElementById("teamNameInput").value; 
 
     if (!email || email === "") {
         alert("Please select a valid participant.");
@@ -129,7 +130,7 @@ if ($result->num_rows > 0) {
         body: JSON.stringify({
             action: "add_to_notifications",
             email: email,
-            event_title: eventTitle, // ✅ تمرير اسم الايفنت الصحيح
+            event_title: eventTitle, 
             team_name: teamName,
         }),
     })
@@ -147,7 +148,7 @@ if ($result->num_rows > 0) {
 
 document.getElementById("join-team-btn").addEventListener("click", function () {
     const email = document.getElementById("userEmail").value;
-    const eventTitle = document.getElementById("eventTitle").value; // ✅ الحدث يتم إرساله هنا
+    const eventTitle = document.getElementById("eventTitle").value; 
 
     if (email && eventTitle) {
         fetch("API.php", {
@@ -178,7 +179,7 @@ document.getElementById("join-team-btn").addEventListener("click", function () {
 
 
 
-// ✅ إزالة المستخدم عند الضغط على I Have a Team
+
 document.getElementById("leave-team-btn").addEventListener("click", function () {
     const email = document.getElementById("userEmail").value;
     const eventTitle = document.getElementById("eventTitle").value;
@@ -199,7 +200,7 @@ document.getElementById("leave-team-btn").addEventListener("click", function () 
         .then((data) => {
             alert(data.message);
             if (data.status === "success") {
-                // ✅ إعادة توجيه إلى Team_Form بعد الحذف بنجاح
+                
                 window.location.href = `Team_Form.php?event_title=${encodeURIComponent(eventTitle)}`;
             }
         })
