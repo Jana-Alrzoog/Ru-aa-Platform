@@ -430,12 +430,27 @@ textarea.form-input {
     margin-top: 20px;
 }
 
+.team-member-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center; /* يخليهم في الوسط */
+    width: 100%;             /* لازم ياخذ عرض كافي */
+}
+
+
+
 .team-section {
     width: 100%;
     margin-bottom: 30px;
+    padding: 20px;
     border-bottom: 1px solid #45206a;
-    padding-bottom: 20px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* يخلي الهيدر بالنص */
 }
+
 
 .team-section h3 {
     color: #b988ea;
@@ -450,15 +465,16 @@ textarea.form-input {
 }
 
 .team-member-card {
-    background: rgba(185, 136, 234, 0.18);
-    border-radius: 15px;
-    padding: 20px;
-    width: 250px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
+  background: rgba(185, 136, 234, 0.18);
+  border-radius: 15px;
+  padding: 20px;
+  width: 250px; /* ✅ العرض مضبوط */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
 }
+
 
 .team-member-avatar {
     width: 80px;
@@ -562,4 +578,13 @@ textarea.form-input {
     .team-section h3 {
         font-size: 18px;
     }
+}
+
+
+.team-section {
+    background-color: rgba(255, 255, 255, 0.05); /* بس للتجربة */
+}
+
+.team-member-list {
+    background-color: rgba(255, 0, 0, 0.1); /* عشان تشوفين التوسيط واضح */
 }
