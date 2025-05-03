@@ -343,7 +343,7 @@ footer .column > a:hover{
     text-align: center;
 }
 
-@media (width : 900px){
+@media (width < 900px){
     .nav-links{
         display: none;
     }
@@ -364,7 +364,7 @@ footer .column > a:hover{
     }
 }
 
-@media (width : 600px){
+@media (width < 600px){
     header .image::before{
         display: none;
     }
@@ -637,15 +637,12 @@ form .category label .dot {
   border: 5px solid transparent;
   transition: all 0.3s ease;
 }
-input[type="radio"] {
-  display: none;
-}
-
-input[type="radio"]:checked + .dot {
+#dot-1:checked~.category label .one,
+#dot-2:checked~.category label .two,
+#dot-3:checked~.category label .three {
   background: #9b59b6;
   border-color: #d9d9d9;
 }
-
 form input[type="radio"] {
   display: none;
 }
@@ -834,4 +831,3 @@ form .button input {
 #uploadLabel:hover #uploadIcon {
     opacity: 1;
 }
-

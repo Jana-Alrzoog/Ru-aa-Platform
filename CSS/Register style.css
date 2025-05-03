@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+/* Reset & base font */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Dark background, centered content */
+body {
+    background-color: #18181B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Optional blurred purple elements */
+.blur {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: #8940d3;
+    filter: blur(120px);
+    opacity: 0.5;
+    z-index: -1;
+}
+.blur:first-child {
+    top: 10%;
+    left: 20%;
+}
+.blur:last-child {
+    bottom: 10%;
+    right: 20%;
+}
+
+/* 
+   =========================
+   MAIN SIGNUP CONTAINER
+   =========================
+*/
+
+/* Outer white container with rounded corners */
+.signup-container {
+    position: relative;
+    display: flex;
+    width: 768px;
+    max-width: 100%;
+    min-height: 480px;
+    background-color: #fff;
+    border-radius: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+}
+
+/* Left panel: purple background with welcome text */
+.signup-left {
+    background-color: #8940d3;
+    color: #fff;
+    width: 40%;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* Right panel: white area for the sign-up form */
+.signup-right {
+    width: 60%;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #fff;
+}
+
+/* The sign-up form inside the right panel */
+.signup-right form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* center the fields horizontally */
+}
+
+/* Form heading */
+.signup-right form h1 {
+    margin-bottom: 15px;
+    font-size: 24px;
+    color: #333;
+}
+
+/* Inputs and select fields */
+.signup-right form input,
+.signup-right form select {
+    background-color: #eee;
+    border: none;
+    margin: 8px 0;
+    padding: 10px 15px;
+    font-size: 13px;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
+    font-weight: 500;
+    color: #333;
+}
+.signup-right form input:hover,
+.signup-right form select:hover {
+    background-color: #ddd;
+}
+.signup-right form input:focus,
+.signup-right form select:focus {
+    border: 2px solid #6c2bbf;
+}
+
+/* Sign Up button */
+.signup-right form button {
+    background-color: #8940d3;
+    color: #fff;
+    font-size: 12px;
+    padding: 10px 45px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+/* Error and success messages */
+.error-message {
+    color: #d10000 !important; /* white text for errors */
+    padding: 8px;
+    margin-top: 10px;
+    border-radius: 6px;
+    text-align: center;
+}
+.success-message {
+    color: #0f0; /* green text for success */
+    margin-top: 10px;
+    text-align: center;
+    font-weight: 600;
+}

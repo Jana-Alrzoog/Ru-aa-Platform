@@ -20,6 +20,7 @@ body {
   align-items: center;
 }
 
+
 a {
   text-decoration: none;
 }
@@ -29,6 +30,7 @@ body {
 }
 
 /* Navigation Styles */
+
 nav {
   max-width: 1200px;
   margin: auto;
@@ -352,7 +354,6 @@ textarea.form-input {
   font-size: 0.8rem;
   text-align: center;
 }
-
 /* Responsive styles */
 @media (max-width: 991px) {
   .profile-card {
@@ -420,8 +421,7 @@ textarea.form-input {
     align-self: flex-end;
   }
 }
-
-/* Team Members Section Styles */
+/* تصميم قائمة أعضاء الفريق */
 .team-members-container {
     display: flex;
     flex-wrap: wrap;
@@ -430,52 +430,16 @@ textarea.form-input {
     margin-top: 20px;
 }
 
-.team-member-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center; /* يخليهم في الوسط */
-    width: 100%;             /* لازم ياخذ عرض كافي */
-    background-color: transparent; /* بدلاً من الأحمر */
-}
-
-
-
-.team-section {
-    width: 100%;
-    margin-bottom: 30px;
+.team-member-card {
+    background: rgba(185, 136, 234, 0.18);
+    border-radius: 15px;
     padding: 20px;
-    border-bottom: 1px solid #45206a;
-
+    text-align: center;
+    width: 250px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* يخلي الهيدر بالنص */
+    align-items: center;
 }
-
-
-.team-section h3 {
-    color: #b988ea;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.team-event {
-    font-size: 14px;
-    color: #ccc;
-    font-weight: normal;
-}
-
-.team-member-card {
-  background: rgba(185, 136, 234, 0.18);
-  border-radius: 15px;
-  padding: 20px;
-  width: 250px; /* ✅ العرض مضبوط */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-}
-
 
 .team-member-avatar {
     width: 80px;
@@ -483,46 +447,22 @@ textarea.form-input {
     border-radius: 50%;
     background-color: rgba(128, 128, 128, 0.55);
     margin-bottom: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-}
-
-.team-member-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.team-member-info {
-    text-align: center;
-    width: 100%;
 }
 
 .team-member-name {
     font-size: 16px;
     font-weight: 600;
     color: white;
-    margin-bottom: 5px;
 }
 
 .team-member-email {
     font-size: 14px;
-    color: #ccc;
-    margin-bottom: 5px;
+    color: white;
 }
 
-.member-role {
-    font-size: 14px;
-    color: #b988ea;
-    margin-bottom: 10px;
-    font-weight: 500;
-}
-
-/* Buttons */
+/* زر الحذف */
 .delete-member-btn {
-    background-color: #f44336;
+    background-color: red;
     color: white;
     padding: 5px 10px;
     border-radius: 5px;
@@ -530,55 +470,8 @@ textarea.form-input {
     margin-top: 10px;
     border: none;
     transition: 0.3s;
-    width: 100%;
 }
 
 .delete-member-btn:hover {
-    background-color: #d32f2f;
+    background-color: darkred;
 }
-
-.leave-team-btn {
-    background-color: #ff9800;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    border: none;
-    transition: 0.3s;
-    width: 100%;
-}
-
-.leave-team-btn:hover {
-    background-color: #e68a00;
-}
-
-.delete-team-btn {
-    background-color: #f44336;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 15px;
-    border: none;
-    transition: 0.3s;
-    font-weight: 500;
-}
-
-.delete-team-btn:hover {
-    background-color: #d32f2f;
-}
-
-/* Responsive adjustments for team section */
-@media (max-width: 768px) {
-    .team-member-card {
-        width: 100%;
-        max-width: 300px;
-    }
-    
-    .team-section h3 {
-        font-size: 18px;
-    }
-}
-
-

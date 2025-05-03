@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="profile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <div class="nav-logo">
+                <a href="#">
+                    <img src="images/logo_ruaa.png" alt="Ruaa Logo">
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li class="link"><a href="Home page.html">Home</a></li>
+                <li id="link1" class="link"><a href="event.html">Events</a></li>
+                <li class="link"><a href="profile.html">Profile</a></li>
+                <li class="link"><a href="Home page.html">Log out</a></li>
+                <li class="link"><a href="notification.html">🔔</a></li>
+    
+            </ul>
+        </nav>
+
+        <section class="profile-card">
+            <div class="profile-content">
+                <div class="input-group">
+                    <label class="label">UserName:</label>
+                    <p id="username-display" class="input-field">user1234</p>
+                </div>
+                <div class="input-group">
+                    <label class="label">Email:</label>
+                    <p id="email-display" class="input-field">user@example.com</p>
+                </div>
+                <div class="input-group">
+                    <label class="label">Experiences:</label>
+                    <p id="experiences-display" class="input-field">programming <br> UX</p>
+                </div>
+            </div>
+            <div class="profile-image-container">
+                <div class="profile-image" id="profileImagePreview">
+                    <span class="upload-icon">+</span>
+                </div>
+                <input type="file" id="profileImageInput" accept="image/*" class="hidden-input">
+                <button class="upload-button" id="uploadTrigger">Upload Photo</button>
+            </div>
+        </section>
+
+        <div class="button-group">
+            <button class="action-button" id="showEventsBtn">My Registered Events</button>
+            <button class="action-button" id="editProfileBtn">Edit Profile</button>
+        </div>
+
+        <section class="registered-events" id="registeredEvents">
+            <h2 class="events-title">My Registered Events</h2>
+            <ul class="events-list" id="eventsList">
+                <li class="event-item">
+                    <div class="event-details">
+                        <h3 class="event-name">Web Development Workshop</h3>
+                        <p class="event-date">June 15, 2024</p>
+                    </div>
+                    <button class="remove-event-btn">Remove</button>
+                </li>
+                <li class="event-item">
+                    <div class="event-details">
+                        <h3 class="event-name">UX Design Hackathon</h3>
+                        <p class="event-date">July 10, 2024</p>
+                    </div>
+                    <button class="remove-event-btn">Remove</button>
+                </li>
+                <li class="event-item">
+                    <div class="event-details">
+                        <h3 class="event-name">AI Conference</h3>
+                        <p class="event-date">August 5, 2024</p>
+                    </div>
+                    <button class="remove-event-btn">Remove</button>
+                </li>
+            </ul>
+            <div class="no-events-message" id="noEventsMessage">You have no registered events.</div>
+        </section>
+
+        <div class="edit-profile-modal" id="editProfileModal">
+            <div class="modal-content">
+                <span class="close-modal" id="closeModal">&times;</span>
+                <h2 class="modal-title">Edit Profile</h2>
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" value="user1234" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" value="user@example.com" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="experiences">Experiences:</label>
+                        <textarea id="experiences" class="form-input">programming\nUX</textarea>
+                    </div>
+                    <button type="submit" class="save-button">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- My Team Members Section -->
+        <section class="profile-card">
+            <h2>My Team Members</h2>
+            <div id="team-members" class="team-members-container"></div>
+        </section>
+        <footer class="copyright">
+            Copyright © 2024 Ruaa. All Rights Reserved.
+        </footer>
+    </div>
+
+    <script src="profile.js"></script>
+</body>
+</html>

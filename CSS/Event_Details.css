@@ -207,18 +207,16 @@ nav{
         }
       }
 
-.page-title {
-    color: #fff;
-    text-align: center;
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    margin-top: 50px;
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 20px;
-    font-weight: 600;
-    width: 100%;
-}
-
+      .page-title {
+        color: #fff;
+        text-align: center;
+        text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+       
+        align-self: start;
+        margin-top: 94px;
+        font-size: 16px;
+        font-weight: 400;
+      }
 
       @media (max-width: 991px) {
         .page-title {
@@ -226,23 +224,20 @@ nav{
         }
       }
 
-.event-info-container {
-    border-radius: 53px;
-    background-color: rgba(185, 136, 234, 0.11);
-    display: flex;
-    margin-top: 36px;
-    padding: 24px 71px;
-    align-items: center; 
-    gap: 20px;
-    font-size: 16px;
-    color: #fff;
-    font-weight: 400;
-    flex-wrap: wrap;
-    justify-content: center; 
-    text-align: center;
-}
-
-
+      .event-info-container {
+        border-radius: 53px;
+        background-color: rgba(185, 136, 234, 0.11);
+        display: flex;
+        margin-top: 36px;
+        padding: 24px 71px;
+        align-items: stretch;
+        gap: 20px;
+        font-size: 16px;
+        color: #fff;
+        font-weight: 400;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
 
       @media (max-width: 991px) {
         .event-info-container {
@@ -286,24 +281,19 @@ nav{
         }
       }
 
-.register-button {
-    text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 53px;
-    background-color: rgba(137, 64, 211, 1);
-    margin-top: 20px; 
-    padding: 20px 22px;
-    white-space: nowrap;
-    text-align: center;
-    color: #fff;
-    text-decoration: none;
-    display: inline-block;
-    cursor: pointer;
-    margin-left: auto; 
-    margin-right: auto;
-    display: block; 
-}
-
-
+      .register-button {
+        text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        border-radius: 53px;
+        background-color: rgba(137, 64, 211, 1);
+        margin-top: 14px;
+        padding: 20px 22px;
+        white-space: nowrap;
+        text-align: center;
+        color: #fff;
+        text-decoration: none;
+        display: inline-block;
+        cursor: pointer;
+      }
 
       @media (max-width: 991px) {
         .register-button {
@@ -449,6 +439,27 @@ nav{
         }
       }
 
+      .footer {
+        align-self: center;
+        margin-top: 129px;
+        width: 1200px;
+        max-width: 100%;
+        padding: 16px 461px 17px;
+        font-size: 13px;
+        color: #ffffff;
+        font-weight: 400;
+        text-align: center;
+      }
+
+      @media (max-width: 991px) {
+        .footer {
+          padding: 16px 20px 17px;
+          margin-top: 40px;
+        }
+      }
+      
+/* Footer */
+
 footer{
     position: relative;
     display: grid;
@@ -503,54 +514,6 @@ footer .column > a{
 
 footer .column > a:hover{
     color: #8940d3;
-}
-
-.copyright{
-    max-width: 1200px;
-    margin: auto;
-    padding: 1rem;
-    color: #fff;
-    font-size: 0.8rem;
-    text-align: center;
-}
-
-@media (width : 900px){
-    .nav-links{
-        display: none;
-    }
-    header{
-        grid-template-columns: repeat(1, 1fr);
-    }
-    header .image{
-        grid-area: 1/1/2/2;
-    }
-    .features{
-        grid-template-columns: repeat(2, 1fr);
-    }
-    .pricing{
-        grid-template-columns: repeat(2, 1fr);
-    }
-    footer{
-        grid-template-columns: 1fr 200px;
-    }
-}
-
-@media (width : 600px){
-    header .image::before{
-        display: none;
-    }
-
-    .features{
-        grid-template-columns: repeat(1, 1fr);
-    }
-
-    .pricing{
-        grid-template-columns: repeat(1, 1fr);
-    }
-
-    footer{
-        grid-template-columns: 1fr 150px;
-    }
 }
 
 .copyright{
