@@ -1,84 +1,82 @@
 # 🌐 Ru'aa Platform
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/6997569a-72e1-4dd4-8ce4-3b17fec4ead6" width="600"/>
+  <img src="./ruaaplat.jpg" width="700"/>
 </p>
 
 ---
 
 ## 📝 Overview
 
-**Ru'aa** is a dynamic web-based platform built to simplify the process of discovering, managing, and participating in technical events such as **hackathons, workshops, and coding competitions**. It connects passionate individuals with relevant events and teammates, while offering tools for organizers to promote and manage their events.
+**Ru'aa** is a sleek and user-focused web platform designed to simplify access to technical events such as **hackathons, workshops**, and **coding competitions**. Whether you're a student looking to participate or an organizer promoting an event, Ru'aa is your centralized hub for engagement and collaboration.
 
 ---
 
-## 🎯 Objectives
+## ❗ The Problem
 
-- 🔍 **Centralized Event Discovery**  
-  One-stop platform to explore upcoming hackathons, workshops, and competitions.
-
-- 🧾 **Organizer-Friendly Management**  
-  Empower event hosts with intuitive tools to create, edit, and manage their events.
-
-- 🤝 **Smart Team Collaboration**  
-  Match participants with potential teammates based on interests and event goals.
-
-- ⏰ **Real-Time Notifications**  
-  Keep users informed about event deadlines and team activity.
-
-- 🌐 **Community Engagement**  
-  Promote innovation and collaboration within the student tech community.
+- 📉 Technical events are scattered across platforms and difficult to find.
+- 🧩 Team formation is often messy and unstructured.
+- 🕑 Many participants miss important deadlines.
+- 😓 Organizers struggle to reach the right audience effectively.
 
 ---
 
-## 🚀 Key Features
+## ✅ Our Solution
 
-| Feature              | Description                                                                 |
-|----------------------|-----------------------------------------------------------------------------|
-| 📅 **Event Explorer**  | Browse and register for tech events with ease                              |
-| 🛠️ **Event Builder**   | Organizers can create, edit, and remove events easily                     |
-| 🤝 **Team Finder**     | Find or join teams with shared interests and skillsets                     |
-| 🔔 **Notifications**   | Alerts for deadlines, event updates, and team invites                      |
-| ❌ **Event Deletion**  | Allow organizers to cancel outdated or invalid events                      |
+- 🔍 A **centralized listing** for all technical events, filterable by category and date.
+- 🤝 A built-in **team formation tool** to match participants based on shared interests.
+- 🔔 **Event notifications** and deadline reminders for seamless participation.
+- 🎯 An **easy-to-use organizer dashboard** for creating and managing events.
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Features at a Glance
 
-| Layer       | Technologies Used                              |
-|-------------|-------------------------------------------------|
-| **Frontend**| HTML, CSS, JavaScript                           |
-| **Backend** | PHP, LocalStorage *(temporary persistence)*     |
-| **Tools**   | GitHub, VS Code, Figma                          |
+| 💡 Feature              | ✨ Description                                                      |
+|------------------------|---------------------------------------------------------------------|
+| 📅 Event Explorer       | Browse and register for hackathons and workshops with ease          |
+| 🛠 Event Builder        | Organizers can create, update, and cancel events                    |
+| 🤝 Team Matcher         | Smart suggestions to form or join teams                             |
+| 🔔 Deadline Reminders   | Notifications via UI to ensure you never miss key dates             |
+| 🧾 Personalized Feed    | See events based on your skills and interests                       |
+
+---
+
+## 🧠 Tech Stack
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e5384bb7-e1c3-43bd-a37c-e0a231c8c713" width="600"/>
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white"/>
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white"/>
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"/>
+  <img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white"/>
+  <img src="https://img.shields.io/badge/LocalStorage-lightgrey?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white"/>
+</p>
+
+---
+
+## 🧩 Sample Hackathon Listing
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Jana-Alrzoog/ruaa-assets/main/hackathon-section.gif" width="700"/>
 </p>
 
 ---
 
 ## 🌟 Highlights
 
-- 🧠 Developed to enhance the student experience in discovering tech events  
-- 📚 Built with clean, responsive frontend using pure HTML/CSS/JS  
-- 📊 Managed event data using LocalStorage and PHP for backend logic  
-- 🎯 Designed a complete user journey: Explore → Join/Create Team → Register → Get Notified
+- 🔗 One-click team joining and management
+- 🌐 Built from scratch using only frontend + PHP + LocalStorage
+- 📈 Designed with community growth in mind
+- 📬 Notifications designed to improve retention and reduce dropouts
 
 ---
 
 ## 🧠 Future Enhancements
 
-- Use **Firebase** or **MySQL** for real-time data storage
-- Add **user authentication** (Google/GitHub OAuth)
-- Create **dashboard for admins**
-- Implement **event rating & reviews**
+- Real database with Firebase or MySQL
+- OAuth login with GitHub/Google
+- Dark/light mode toggle
+- Event rating & reviews system
 
 ---
-
-## 💬 Why Ru'aa?
-
-> “Because innovation thrives when communities connect.”  
-> Ru'aa is not just a platform, it's a step toward building a stronger tech ecosystem for students.
-
----
-
