@@ -1,10 +1,9 @@
 # 🌐 Ru'aa Platform
 
 <p align="center">
-  <img src="ruaaplat.jpg" width="700"/>
-  ![image](https://github.com/user-attachments/assets/56169d95-e4bb-44a8-996b-d33731f0005b)
-
+  <img src="https://github.com/user-attachments/assets/56169d95-e4bb-44a8-996b-d33731f0005b" width="700"/>
 </p>
+
 
 ---
 
