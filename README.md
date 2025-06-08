@@ -1,7 +1,7 @@
 # 🌐 Ru'aa Platform
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/56169d95-e4bb-44a8-996b-d33731f0005b" width="700"/>
+  <img src="https://github.com/user-attachments/assets/56169d95-e4bb-44a8-996b-d33731f0005b" width="400"/>
 </p>
 
 
