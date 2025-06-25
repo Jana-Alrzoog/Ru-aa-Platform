@@ -5,6 +5,7 @@
 </p>
 
 
+📺 [Watch the video walkthrough](https://youtu.be/dVwy-euJjhg)
 ---
 
 ## 📝 Overview
